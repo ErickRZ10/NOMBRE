@@ -1,0 +1,142 @@
+package analizador2;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    private Symbol s;
+    public void syntax_error(Symbol s){ this.s = s; }
+    public Symbol getS(){ return this.s; }
+:};
+
+/* ─────────────  TERMINALES  ───────────── */
+terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corchete_a, Flecha, Corchete_c, 
+         Return, Print, Parentesis_a, Parentesis_c, Llave_a, Llave_c, Coma, PuntoComa, DosPuntos, True, False, None,
+         Suma, Resta, Multiplicacion, Division, Modulo, Potencia, Op_logico, Op_relacional, Op_asignacion,
+         NumeroEntero, NumeroDecimal, Int, Float, Bool, String, Cadena, Char, Identificador, Error;
+
+/* ─────────────  NO TERMINALES  ───────────── */
+non terminal INICIO, DECLARACIONES, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION, 
+             EXPRESION, LLAMADA_FUNCION, IF_STATEMENT, ELIF_BLOQUES, ELSE_BLOQUE, DECLARACION_TIPADA,
+             WHILE_LOOP, FOR_LOOP, PRINT_STMT, VALOR, IMPORT_STMT, LISTA_VALORES;
+
+/* ─────────────  PRECEDENCIAS  ───────────── */
+precedence left Op_logico;
+precedence left Op_relacional;
+precedence left Suma, Resta;
+precedence left Multiplicacion, Division, Modulo;
+precedence right Potencia;
+
+/* ─────────────  INICIO  ───────────── */
+start with INICIO;
+
+/* ─────────────  PRODUCCIONES  ───────────── */
+
+/* 1. Programa: declaraciones globales + funciones */
+INICIO ::= DECLARACIONES FUNCIONES
+         | FUNCIONES ;
+
+/* 2. Declaraciones globales */
+DECLARACIONES ::= DECLARACIONES ASIGNACION PuntoComa
+                | DECLARACIONES DECLARACION_TIPADA PuntoComa
+                | DECLARACIONES IMPORT_STMT PuntoComa
+                | ASIGNACION PuntoComa
+                | IMPORT_STMT PuntoComa;
+
+/* 3. Importación de librería */
+IMPORT_STMT ::= From Identificador Import Identificador 
+            | Import Identificador;
+
+/* 4. Conjunto de funciones */
+FUNCIONES ::= FUNCION
+            | FUNCIONES FUNCION ;
+
+/* 5. Definición de función */
+FUNCION ::= Def Identificador Parentesis_a PARAMS Parentesis_c
+            Llave_a SENTENCIAS Llave_c ;
+
+/* 6. Parámetros */
+PARAMS ::= /* vacío */
+         | Identificador
+         | Identificador Coma PARAMS ;
+
+/* 7. Bloque de sentencias */
+SENTENCIAS ::= /* vacío */
+             | SENTENCIAS SENTENCIA ;
+
+/* 8. Sentencia individual */
+SENTENCIA ::= ASIGNACION       PuntoComa
+            | DECLARACION_TIPADA PuntoComa
+            | LLAMADA_FUNCION  PuntoComa
+            | PRINT_STMT       PuntoComa
+            | IF_STATEMENT
+            | WHILE_LOOP
+            | FOR_LOOP
+            | Return EXPRESION PuntoComa ;
+
+
+DECLARACION_TIPADA ::= Int Identificador Op_asignacion EXPRESION
+                     | Float Identificador Op_asignacion EXPRESION
+                     | Bool Identificador Op_asignacion EXPRESION
+                     | String Identificador Op_asignacion EXPRESION ;
+
+
+/* 9. Asignación */
+ASIGNACION ::= Identificador Op_asignacion EXPRESION ;
+
+/* 10. Llamada a función */
+LLAMADA_FUNCION ::= Identificador Parentesis_a PARAMS Parentesis_c ;
+
+/* 11. print(expr) */
+PRINT_STMT ::= Print Parentesis_a EXPRESION Parentesis_c ;
+
+/* 12. If anidado */
+IF_STATEMENT ::= If Parentesis_a EXPRESION Parentesis_c
+                 Llave_a SENTENCIAS Llave_c ELIF_BLOQUES ELSE_BLOQUE ;
+
+ELIF_BLOQUES ::= /* vacío */
+               | ELIF_BLOQUES Elif Parentesis_a EXPRESION Parentesis_c Llave_a SENTENCIAS Llave_c ;
+
+ELSE_BLOQUE ::= /* vacío */
+              | Else Llave_a SENTENCIAS Llave_c ;
+
+/* 13. While */
+WHILE_LOOP ::= While Parentesis_a EXPRESION Parentesis_c
+               Llave_a SENTENCIAS Llave_c ;
+
+/* 14. For estilo C */
+FOR_LOOP ::= For Parentesis_a ASIGNACION PuntoComa EXPRESION PuntoComa
+             ASIGNACION Parentesis_c Llave_a SENTENCIAS Llave_c ;
+
+
+
+/* 15. Expresiones */
+EXPRESION ::= EXPRESION Suma            EXPRESION
+            | EXPRESION Resta           EXPRESION
+            | EXPRESION Multiplicacion  EXPRESION
+            | EXPRESION Division        EXPRESION
+            | EXPRESION Modulo          EXPRESION
+            | EXPRESION Potencia        EXPRESION
+            | EXPRESION Op_relacional   EXPRESION
+            | EXPRESION Op_logico       EXPRESION
+            | Parentesis_a EXPRESION Parentesis_c
+            | Input Parentesis_a Cadena Parentesis_c
+            | Input Parentesis_a Parentesis_c
+            | VALOR 
+            | LLAMADA_FUNCION;
+
+LISTA_VALORES ::= /* vacío */
+                | EXPRESION
+                | EXPRESION Coma LISTA_VALORES ;
+
+
+/* 16. Valores */
+VALOR ::= NumeroEntero
+        | NumeroDecimal
+        | Cadena
+        | Char
+        | Identificador 
+        | True
+        | False
+        | None 
+        | Corchete_a LISTA_VALORES Corchete_c ;
