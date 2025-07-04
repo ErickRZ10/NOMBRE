@@ -7,18 +7,37 @@ parser code
     private Symbol s;
     public void syntax_error(Symbol s){ this.s = s; }
     public Symbol getS(){ return this.s; }
+    private java.util.Map<String,String> table = new java.util.HashMap<>();
+    public void declareVar(String id, String type) throws Exception {
+        if(table.containsKey(id))
+            throw new Exception("Variable redeclarada: " + id);
+        table.put(id,type);
+    }
+    public void assignVar(String id, String type) throws Exception {
+        String t = table.get(id);
+        if(t==null)
+            throw new Exception("Variable no declarada: " + id);
+        if(!t.equals(type))
+            throw new Exception("Se esperaba tipo " + t + " para " + id + ", se obtuvo " + type);
+    }
+    public String getVarType(String id){
+        return table.getOrDefault(id, "Unknown");
+    }
 :};
 
 /* ─────────────  TERMINALES  ───────────── */
-terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corchete_a, Flecha, Corchete_c, 
+terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corchete_a, Flecha, Corchete_c,
          Return, Print, Parentesis_a, Parentesis_c, Llave_a, Llave_c, Coma, PuntoComa, DosPuntos, True, False, None,
          Suma, Resta, Multiplicacion, Division, Modulo, Potencia, Op_logico, Op_relacional, Op_asignacion,
-         NumeroEntero, NumeroDecimal, Int, Float, Bool, String, Main, Cadena, Char, Identificador,Break, Error;
+         Int, Float, Bool, String, Main, Break, Error;
+terminal String NumeroEntero, NumeroDecimal, Cadena, Char, Identificador;
 
 /* ─────────────  NO TERMINALES  ───────────── */
-non terminal INICIO, BLOQUE, DECLARACIONES, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION, 
-             EXPRESION, LLAMADA_FUNCION, IF_STATEMENT, ELIF_BLOQUES, ELSE_BLOQUE, DECLARACION_TIPADA,
-             WHILE_LOOP, FOR_LOOP, PRINT_STMT, VALOR, IMPORT_STMT, LISTA_VALORES ;
+non terminal Object INICIO, BLOQUE, DECLARACIONES, FUNCIONES, FUNCION, PARAMS,
+             SENTENCIAS, SENTENCIA, ASIGNACION, LLAMADA_FUNCION, IF_STATEMENT,
+             ELIF_BLOQUES, ELSE_BLOQUE, DECLARACION_TIPADA,
+             WHILE_LOOP, FOR_LOOP, PRINT_STMT, IMPORT_STMT, LISTA_VALORES;
+non terminal String EXPRESION, VALOR;
 
 /* ─────────────  PRECEDENCIAS  ───────────── */
 precedence left Op_logico;
@@ -84,17 +103,23 @@ SENTENCIA ::= ASIGNACION       PuntoComa
             | Break PuntoComa;
 
 
-DECLARACION_TIPADA ::= Int Identificador Op_asignacion EXPRESION
-                     | Float Identificador Op_asignacion EXPRESION
-                     | Bool Identificador Op_asignacion EXPRESION
-                     | String Identificador Op_asignacion EXPRESION ;
+DECLARACION_TIPADA ::= Int Identificador:id Op_asignacion EXPRESION:val
+                        {: parser.declareVar(id, "Int"); parser.assignVar(id, val); :}
+                     | Float Identificador:id Op_asignacion EXPRESION:val
+                        {: parser.declareVar(id, "Float"); parser.assignVar(id, val); :}
+                     | Bool Identificador:id Op_asignacion EXPRESION:val
+                        {: parser.declareVar(id, "Bool"); parser.assignVar(id, val); :}
+                     | String Identificador:id Op_asignacion EXPRESION:val
+                        {: parser.declareVar(id, "String"); parser.assignVar(id, val); :} ;
 
 
 /* 9. Asignación */
-ASIGNACION ::= Identificador Op_asignacion EXPRESION ;
+ASIGNACION ::= Identificador:id Op_asignacion EXPRESION:val
+                {: parser.assignVar(id, val); :} ;
 
 /* 10. Llamada a función */
-LLAMADA_FUNCION ::= Identificador Parentesis_a PARAMS Parentesis_c ;
+LLAMADA_FUNCION ::= Identificador Parentesis_a PARAMS Parentesis_c
+                     {: RESULT = "Unknown"; :} ;
 
 /* 11. print(expr) */
 PRINT_STMT ::= Print Parentesis_a EXPRESION Parentesis_c ;
@@ -120,32 +145,56 @@ FOR_LOOP ::= For Parentesis_a ASIGNACION PuntoComa EXPRESION PuntoComa
 
 
 /* 15. Expresiones */
-EXPRESION ::= EXPRESION Suma            EXPRESION
-            | EXPRESION Resta           EXPRESION
-            | EXPRESION Multiplicacion  EXPRESION
-            | EXPRESION Division        EXPRESION
-            | EXPRESION Modulo          EXPRESION
-            | EXPRESION Potencia        EXPRESION
-            | EXPRESION Op_relacional   EXPRESION
-            | EXPRESION Op_logico       EXPRESION
-            | Parentesis_a EXPRESION Parentesis_c
+EXPRESION ::= EXPRESION:e1 Suma EXPRESION:e2
+            {: RESULT = ("Float".equals(e1) || "Float".equals(e2)) ? "Float" : "Int"; :}
+            | EXPRESION:e1 Resta EXPRESION:e2
+            {: RESULT = ("Float".equals(e1) || "Float".equals(e2)) ? "Float" : "Int"; :}
+            | EXPRESION:e1 Multiplicacion EXPRESION:e2
+            {: RESULT = ("Float".equals(e1) || "Float".equals(e2)) ? "Float" : "Int"; :}
+            | EXPRESION:e1 Division EXPRESION:e2
+            {: RESULT = "Float"; :}
+            | EXPRESION:e1 Modulo EXPRESION:e2
+            {: RESULT = "Int"; :}
+            | EXPRESION:e1 Potencia EXPRESION:e2
+            {: RESULT = "Float"; :}
+            | EXPRESION:e1 Op_relacional EXPRESION:e2
+            {: RESULT = "Bool"; :}
+            | EXPRESION:e1 Op_logico EXPRESION:e2
+            {: RESULT = "Bool"; :}
+            | Parentesis_a EXPRESION:e Parentesis_c
+            {: RESULT = e; :}
             | Input Parentesis_a Cadena Parentesis_c
+            {: RESULT = "String"; :}
             | Input Parentesis_a Parentesis_c
-            | VALOR 
-            | LLAMADA_FUNCION;
+            {: RESULT = "String"; :}
+            | VALOR:v {: RESULT = v; :}
+            | LLAMADA_FUNCION
+            {: RESULT = "Unknown"; :};
 
 LISTA_VALORES ::= /* vacío */
+                  {: RESULT = ""; :}
                 | EXPRESION
-                | EXPRESION Coma LISTA_VALORES ;
+                  {: RESULT = "List"; :}
+                | EXPRESION Coma LISTA_VALORES
+                  {: RESULT = "List"; :} ;
 
 
 /* 16. Valores */
 VALOR ::= NumeroEntero
+          {: RESULT = "Int"; :}
         | NumeroDecimal
+          {: RESULT = "Float"; :}
         | Cadena
+          {: RESULT = "String"; :}
         | Char
-        | Identificador 
+          {: RESULT = "Char"; :}
+        | Identificador:id
+          {: RESULT = parser.getVarType(id); :}
         | True
+          {: RESULT = "Bool"; :}
         | False
-        | None 
-        | Corchete_a LISTA_VALORES Corchete_c ;
+          {: RESULT = "Bool"; :}
+        | None
+          {: RESULT = "None"; :}
+        | Corchete_a LISTA_VALORES Corchete_c
+          {: RESULT = "List"; :} ;

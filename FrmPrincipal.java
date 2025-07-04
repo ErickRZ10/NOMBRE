@@ -816,10 +816,14 @@ case ARROW:
             limpiarResaltado();
         } catch (Exception ex) {
             Symbol sym = s.getS();
-            txtAnalizarSin.setText("Error de sintaxis en linea " + (sym.right + 1) +
-                    " columna " + (sym.left + 1) + ". Texto inesperado: \"" + sym.value + "\"");
+            if(sym != null){
+                txtAnalizarSin.setText("Error de sintaxis en linea " + (sym.right + 1) +
+                        " columna " + (sym.left + 1) + ". Texto inesperado: \"" + sym.value + "\"");
+                resaltarLineaError(sym.right + 1);
+            }else{
+                txtAnalizarSin.setText(ex.getMessage());
+            }
             txtAnalizarSin.setForeground(Color.red);
-            resaltarLineaError(sym.right + 1);
         }
     }//GEN-LAST:event_btnAnalizarSinActionPerformed
 
