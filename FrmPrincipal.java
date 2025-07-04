@@ -60,21 +60,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
 
         jLabel5.setText("Listo");
-        // Confirmación al intentar cerrar la ventana
+        // Confirmación al intentar cerrar la ventana. Si hay cambios sin
+        // guardar se pregunta si se desean guardar antes de salir.
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent evt) {
-                int opcion = javax.swing.JOptionPane.showConfirmDialog(
-                    FrmPrincipal.this,
-                    "¿Está seguro de que desea cerrar la aplicación?",
-                    "Confirmar salida",
-                    javax.swing.JOptionPane.YES_NO_OPTION,
-                    javax.swing.JOptionPane.QUESTION_MESSAGE
-                );
-                if (opcion == javax.swing.JOptionPane.YES_OPTION) {
-                    dispose();
+                if (!confirmarGuardarCambios()) {
+                    return; // El usuario canceló el cierre
                 }
+                dispose();
             }
         });
     }
