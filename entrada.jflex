@@ -25,7 +25,8 @@ espacio=[ \t,\r,\n]+
 "true"      { lexeme=yytext(); return TRUE; }
 "false"     { lexeme=yytext(); return FALSE; }
 "none"      { lexeme=yytext(); return NONE; }
-
+"input"      { lexeme=yytext(); return INPUT; }
+"main"      { lexeme=yytext(); return MAIN; }
 
 "def"     { lexeme=yytext(); return DEF; }
 "as"        { lexeme=yytext(); return AS; }
@@ -147,6 +148,9 @@ b\'([^\\\']|\\.)?\'     { lexeme=yytext(); return BYTE_LITERAL; }
    ─────────────────────────────────────────────── */
 {espacio}   { /*Ignore*/ }
 "//".* { /*Ignore*/ }
+"/*"([^*]|\*+[^*/])*"*"+"/"    { /* Comentario multilínea: ignorar */ }
+
+
 
 /* ───────────────────────────────────────────────
    Error Handling

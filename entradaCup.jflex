@@ -33,7 +33,7 @@ WHITESPACE = [ \t\r\n]+
 ("true")   { return new Symbol(sym.True, yychar, yyline, yytext()); }
 ("false")  { return new Symbol(sym.False, yychar, yyline, yytext()); }
 ("none")   { return new Symbol(sym.None, yychar, yyline, yytext()); }
-
+("main")   { return new Symbol(sym.Main, yychar, yyline, yytext()); }
 
 
 ("from")    { return new Symbol(sym.From, yychar, yyline, yytext()); }
@@ -75,7 +75,7 @@ WHITESPACE = [ \t\r\n]+
 ( "-" )        { return new Symbol(sym.Resta, yychar, yyline, yytext()); }
 /* Operador Modulo */
 ( "%" )        { return new Symbol(sym.Modulo, yychar, yyline, yytext()); }
-
+( "break" )        { return new Symbol(sym.Break, yychar, yyline, yytext()); }
 /* ─────────────────────────────
    Operadores Relacionales
    ───────────────────────────── */
@@ -84,7 +84,7 @@ WHITESPACE = [ \t\r\n]+
 /* ─────────────────────────────
    Operadores Asignación
    ───────────────────────────── */
-( "=" | "\\+=" | "-=" | "\\*=" | "/=" | "%=" ) { return new Symbol(sym.Op_asignacion, yychar, yyline, yytext()); }
+( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) { return new Symbol(sym.Op_asignacion, yychar, yyline, yytext()); }
 
 /* ─────────────────────────────
    Operadores Lógicos
@@ -137,7 +137,7 @@ WHITESPACE = [ \t\r\n]+
 
 ( "//".* )      { /* ignorar */ }
 {WHITESPACE} { /* ignorar espacios en blanco */ }
-
+("/*"([^*]|\*+[^*/])*"*"+"/")    { /* Comentario multilínea: ignorar */ }
 /* ─────────────────────────────
    Error léxico
    ───────────────────────────── */

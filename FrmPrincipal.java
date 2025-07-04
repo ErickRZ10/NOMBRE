@@ -42,6 +42,23 @@ public class FrmPrincipal extends javax.swing.JFrame {
     public FrmPrincipal() {
         initComponents();
         this.setLocationRelativeTo(null);
+        // Confirmación al intentar cerrar la ventana
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                int opcion = javax.swing.JOptionPane.showConfirmDialog(
+                    FrmPrincipal.this,
+                    "¿Está seguro de que desea cerrar la aplicación?",
+                    "Confirmar salida",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE
+                );
+                if (opcion == javax.swing.JOptionPane.YES_OPTION) {
+                    dispose();
+                }
+            }
+        });
     }
     
     private void analizarLexico() throws IOException{
@@ -62,28 +79,28 @@ switch (token) {
         resultado += "  <Símbolo no definido>\n";
         break;
     case IDENTIFIER:
-        resultado += "  <Identificador>\t" + lexer.lexeme + "\n";
+        resultado += "  <IDENTIFIER>\t" + lexer.lexeme + "\n";
         break;
     case INTEGER_LITERAL:
-        resultado += "  <Literal Entero>\t" + lexer.lexeme + "\n";
+        resultado += "  <INTEGER_LITERAL>\t" + lexer.lexeme + "\n";
         break;
     case FLOAT_LITERAL:
-        resultado += "  <Literal Decimal>\t" + lexer.lexeme + "\n";
+        resultado += "  <FLOAT_LITERAL>\t" + lexer.lexeme + "\n";
         break;
     case STRING_LITERAL:
-        resultado += "  <Literal String>\t" + lexer.lexeme + "\n";
+        resultado += "  <STRING_LITERAL>\t" + lexer.lexeme + "\n";
         break;
     case CHAR_LITERAL:
-        resultado += "  <Literal Caracter>\t" + lexer.lexeme + "\n";
+        resultado += "  <CHAR_LITERAL>\t" + lexer.lexeme + "\n";
         break;
     case BYTE_LITERAL:
-        resultado += "  <Literal Byte>\t" + lexer.lexeme + "\n";
+        resultado += "  <BYTE_LITERAL>\t" + lexer.lexeme + "\n";
         break;
     case BOOL_LITERAL:
-        resultado += "  <Literal Booleano>\t" + lexer.lexeme + "\n";
+        resultado += "  <BOOL_LITERAL>\t" + lexer.lexeme + "\n";
         break;
     case NULL_LITERAL:
-        resultado += "  <Literal Nulo>\t" + lexer.lexeme + "\n";
+        resultado += "  <NULL_LITERAL>\t" + lexer.lexeme + "\n";
         break;
     case IF:
     resultado += "  <IF>\t\t" + lexer.lexeme + "\n";
@@ -133,11 +150,15 @@ case PASS:
 case BREAK:
     resultado += "  <BREAK>\t\t" + lexer.lexeme + "\n";
     break;
-
+case INPUT:
+    resultado += "  <INPUT>\t\t" + lexer.lexeme + "\n";
+    break;
 case CONTINUE:
     resultado += "  <CONTINUE>\t" + lexer.lexeme + "\n";
     break;
-    
+ case MAIN:
+    resultado += "  <MAIN>\t\t" + lexer.lexeme + "\n";
+    break;   
 //RUST
 case DEF:
     resultado += "  <DEF>\t\t" + lexer.lexeme + "\n";
@@ -262,41 +283,41 @@ case ARRAY:
     
  //OPERADORES
     case PLUS:
-    resultado += "  <SUMA>\t\t" + lexer.lexeme + "\n";
+    resultado += "  <PLUS>\t\t" + lexer.lexeme + "\n";
     break;
 case MINUS:
-    resultado += "  <RESTA>\t\t" + lexer.lexeme + "\n";
+    resultado += "  <MINUS>\t\t" + lexer.lexeme + "\n";
     break;
 case MULTIPLY:
-    resultado += "  <MULTIPLICACION>\t" + lexer.lexeme + "\n";
+    resultado += "  <MULTIPLY>\t" + lexer.lexeme + "\n";
     break;
 case DIVIDE:
-    resultado += "  <DIVISION>\t\t" + lexer.lexeme + "\n";
+    resultado += "  <DIVIDE>\t\t" + lexer.lexeme + "\n";
     break;
 case MODULO:
     resultado += "  <MODULO>\t\t" + lexer.lexeme + "\n";
     break;
 case POWER:
-    resultado += "  <POTENCIA>\t" + lexer.lexeme + "\n";
+    resultado += "  <POWER>\t" + lexer.lexeme + "\n";
     break;
 
 case EQUALS:
-    resultado += "  <IGUALDAD>\t" + lexer.lexeme + "\n";
+    resultado += "  <EQUALS>\t\t" + lexer.lexeme + "\n";
     break;
 case NOT_EQUALS:
-    resultado += "  <DIFERENTE>\t" + lexer.lexeme + "\n";
+    resultado += "  <NOT_EQUALS>\t" + lexer.lexeme + "\n";
     break;
 case GREATER_THAN:
-    resultado += "  <MAYOR_QUE>\t" + lexer.lexeme + "\n";
+    resultado += "  <GREATER_THAN>\t" + lexer.lexeme + "\n";
     break;
 case LESS_THAN:
-    resultado += "  <MENOR_QUE>\t" + lexer.lexeme + "\n";
+    resultado += "  <LEES_THAN>\t" + lexer.lexeme + "\n";
     break;
 case GREATER_EQUALS:
-    resultado += "  <MAYOR_IGUAL>\t" + lexer.lexeme + "\n";
+    resultado += "  <GREATER_EQUALS>\t" + lexer.lexeme + "\n";
     break;
 case LESS_EQUALS:
-    resultado += "  <MENOR_IGUAL>\t" + lexer.lexeme + "\n";
+    resultado += "  <LESS_EQUALS>\t" + lexer.lexeme + "\n";
     break;
 
 case AND:
@@ -310,60 +331,59 @@ case NOT:
     break;
 
 case ASSIGN:
-    resultado += "  <ASIGNACION>\t" + lexer.lexeme + "\n";
+    resultado += "  <ASSIGN>\t\t" + lexer.lexeme + "\n";
     break;
 case PLUS_ASSIGN:
-    resultado += "  <SUMA_ASIGNACION>\t" + lexer.lexeme + "\n";
+    resultado += "  <PLUS_ASSIGN>\t" + lexer.lexeme + "\n";
     break;
 case MINUS_ASSIGN:
-    resultado += "  <RESTA_ASIGNACION>\t" + lexer.lexeme + "\n";
+    resultado += "  <MINUS_ASSIGN>\t" + lexer.lexeme + "\n";
     break;
 case MULTIPLY_ASSIGN:
-    resultado += "  <MULT_ASIGNACION>\t" + lexer.lexeme + "\n";
+    resultado += "  <MULTIPLY_ASSIG>\t" + lexer.lexeme + "\n";
     break;
 case DIVIDE_ASSIGN:
-    resultado += "  <DIV_ASIGNACION>\t" + lexer.lexeme + "\n";
+    resultado += "  <DIVIDE_ASSIGN>\t" + lexer.lexeme + "\n";
     break;
 case MODULO_ASSIGN:
-    resultado += "  <MOD_ASIGNACION>\t" + lexer.lexeme + "\n";
+    resultado += "  <MODULO_ASSIGN>\t" + lexer.lexeme + "\n";
     break;
 
     
-
 //DELIMITADORES
     
 case LEFT_PAREN:
-    resultado += "  <Parentesis_I>\t" + lexer.lexeme + "\n";
+    resultado += "  <LEFT_PAREN>\t" + lexer.lexeme + "\n";
     break;
 case RIGHT_PAREN:
-    resultado += "  <Parentesis_D>\t" + lexer.lexeme + "\n";
+    resultado += "  <RIGHT_PAREN>\t" + lexer.lexeme + "\n";
     break;
 case LEFT_BRACE:
-    resultado += "  <Llave_I>\t\t" + lexer.lexeme + "\n";
+    resultado += "  <LEFT_BRACE>\t" + lexer.lexeme + "\n";
     break;
 case RIGHT_BRACE:
-    resultado += "  <Llave_D>\t\t" + lexer.lexeme + "\n";
+    resultado += "  <RIGHT_BRACE>\t" + lexer.lexeme + "\n";
     break;
 case LEFT_BRACKET:
-    resultado += "  <Corchete_I>\t" + lexer.lexeme + "\n";
+    resultado += "  <LEFT_BRACKET>\t" + lexer.lexeme + "\n";
     break;
 case RIGHT_BRACKET:
-    resultado += "  <Corchete_D>\t" + lexer.lexeme + "\n";
+    resultado += "  <RIGHT_BRACKET>\t" + lexer.lexeme + "\n";
     break;
 case SEMICOLON:
-    resultado += "  <PuntoYComa>\t" + lexer.lexeme + "\n";
+    resultado += "  <SEMICOLON>\t" + lexer.lexeme + "\n";
     break;
 case COLON:
-    resultado += "  <DosPuntos>\t" + lexer.lexeme + "\n";
+    resultado += "  <COLON>\t" + lexer.lexeme + "\n";
     break;
 case COMMA:
-    resultado += "  <Coma>\t" + lexer.lexeme + "\n";
+    resultado += "  <COMMA>\t" + lexer.lexeme + "\n";
     break;
 case DOT:
-    resultado += "  <Punto>\t\t" + lexer.lexeme + "\n";
+    resultado += "  <DOT>\t\t" + lexer.lexeme + "\n";
     break;
 case ARROW:
-    resultado += "  <Flecha>\t\t" + lexer.lexeme + "\n";
+    resultado += "  <ARROW>\t\t" + lexer.lexeme + "\n";
     break;
 //92 TOKENS
 
@@ -407,8 +427,8 @@ case ARROW:
         jMenu1 = new javax.swing.JMenu();
         B_Nuevo = new javax.swing.JMenuItem();
         B_Abrir = new javax.swing.JMenuItem();
-        btnGuardar_Como = new javax.swing.JMenuItem();
         btnGuardar = new javax.swing.JMenuItem();
+        btnGuardar_Como = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
@@ -553,23 +573,23 @@ case ARROW:
         });
         jMenu1.add(B_Abrir);
 
-        btnGuardar_Como.setIcon(new javax.swing.ImageIcon("C:\\Users\\ejrz0\\Documents\\Imagenes_Rice\\1_Guardar_Como.png")); // NOI18N
-        btnGuardar_Como.setText("Guardar");
-        btnGuardar_Como.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGuardar_ComoActionPerformed(evt);
-            }
-        });
-        jMenu1.add(btnGuardar_Como);
-
-        btnGuardar.setIcon(new javax.swing.ImageIcon("C:\\Users\\ejrz0\\Documents\\Imagenes_Rice\\1_guardar.png")); // NOI18N
-        btnGuardar.setText("Guardar Como");
+        btnGuardar.setIcon(new javax.swing.ImageIcon("C:\\Users\\ejrz0\\Documents\\Imagenes_Rice\\1_Guardar_Como.png")); // NOI18N
+        btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
             }
         });
         jMenu1.add(btnGuardar);
+
+        btnGuardar_Como.setIcon(new javax.swing.ImageIcon("C:\\Users\\ejrz0\\Documents\\Imagenes_Rice\\1_guardar.png")); // NOI18N
+        btnGuardar_Como.setText("Guardar Como");
+        btnGuardar_Como.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardar_ComoActionPerformed(evt);
+            }
+        });
+        jMenu1.add(btnGuardar_Como);
 
         jMenuBar1.add(jMenu1);
 
@@ -680,9 +700,9 @@ case ARROW:
         }
     }//GEN-LAST:event_B_AbrirActionPerformed
 
-    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+    private void btnGuardar_ComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar_ComoActionPerformed
         // TODO add your handling code here:
-        btnGuardar.addActionListener(e -> {
+        btnGuardar_Como.addActionListener(e -> {
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Guardar como...");
     int seleccion = fileChooser.showSaveDialog(null);
@@ -704,7 +724,7 @@ case ARROW:
     }
 });
 
-    }//GEN-LAST:event_btnGuardarActionPerformed
+    }//GEN-LAST:event_btnGuardar_ComoActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         // TODO add your handling code here:
@@ -728,31 +748,11 @@ case ARROW:
         }
     }//GEN-LAST:event_T_AbrirActionPerformed
 
-    private void btnGuardar_ComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar_ComoActionPerformed
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         // TODO add your handling code here:
-        btnGuardar.addActionListener(e -> {
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setDialogTitle("Guardar como...");
-    int seleccion = fileChooser.showSaveDialog(null);
-
-    if (seleccion == JFileChooser.APPROVE_OPTION) {
-        File archivo = fileChooser.getSelectedFile();
-
-        // Asegurarse que tenga extensión .txt
-        if (!archivo.getName().toLowerCase().endsWith(".txt")) {
-            archivo = new File(archivo.getAbsolutePath() + ".txt");
-        }
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo))) {
-            bw.write(areaTexto.getText());  // Usa el nombre real de tu JTextArea aquí
-            JOptionPane.showMessageDialog(null, "Archivo guardado correctamente.");
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Error al guardar: " + ex.getMessage());
-        }
-    }
-});
         
-    }//GEN-LAST:event_btnGuardar_ComoActionPerformed
+        
+    }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void B_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B_NuevoActionPerformed
         // TODO add your handling code here:}}

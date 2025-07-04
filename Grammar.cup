@@ -13,12 +13,12 @@ parser code
 terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corchete_a, Flecha, Corchete_c, 
          Return, Print, Parentesis_a, Parentesis_c, Llave_a, Llave_c, Coma, PuntoComa, DosPuntos, True, False, None,
          Suma, Resta, Multiplicacion, Division, Modulo, Potencia, Op_logico, Op_relacional, Op_asignacion,
-         NumeroEntero, NumeroDecimal, Int, Float, Bool, String, Cadena, Char, Identificador, Error;
+         NumeroEntero, NumeroDecimal, Int, Float, Bool, String, Main, Cadena, Char, Identificador,Break, Error;
 
 /* ─────────────  NO TERMINALES  ───────────── */
-non terminal INICIO, DECLARACIONES, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION, 
+non terminal INICIO, BLOQUE, DECLARACIONES, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION, 
              EXPRESION, LLAMADA_FUNCION, IF_STATEMENT, ELIF_BLOQUES, ELSE_BLOQUE, DECLARACION_TIPADA,
-             WHILE_LOOP, FOR_LOOP, PRINT_STMT, VALOR, IMPORT_STMT, LISTA_VALORES;
+             WHILE_LOOP, FOR_LOOP, PRINT_STMT, VALOR, IMPORT_STMT, LISTA_VALORES ;
 
 /* ─────────────  PRECEDENCIAS  ───────────── */
 precedence left Op_logico;
@@ -33,8 +33,14 @@ start with INICIO;
 /* ─────────────  PRODUCCIONES  ───────────── */
 
 /* 1. Programa: declaraciones globales + funciones */
-INICIO ::= DECLARACIONES FUNCIONES
-         | FUNCIONES ;
+INICIO ::= BLOQUE
+         | INICIO BLOQUE;
+
+BLOQUE ::= FUNCION
+         | ASIGNACION PuntoComa
+         | DECLARACION_TIPADA PuntoComa
+         | IMPORT_STMT PuntoComa;
+
 
 /* 2. Declaraciones globales */
 DECLARACIONES ::= DECLARACIONES ASIGNACION PuntoComa
@@ -49,16 +55,18 @@ IMPORT_STMT ::= From Identificador Import Identificador
 
 /* 4. Conjunto de funciones */
 FUNCIONES ::= FUNCION
-            | FUNCIONES FUNCION ;
+            | FUNCIONES FUNCION;
+
 
 /* 5. Definición de función */
-FUNCION ::= Def Identificador Parentesis_a PARAMS Parentesis_c
-            Llave_a SENTENCIAS Llave_c ;
+FUNCION ::= Def Identificador Parentesis_a PARAMS Parentesis_c Llave_a SENTENCIAS Llave_c
+            |Def Main Parentesis_a PARAMS Parentesis_c Llave_a SENTENCIAS Llave_c;
+
 
 /* 6. Parámetros */
 PARAMS ::= /* vacío */
-         | Identificador
-         | Identificador Coma PARAMS ;
+         | EXPRESION
+         | EXPRESION Coma PARAMS;
 
 /* 7. Bloque de sentencias */
 SENTENCIAS ::= /* vacío */
@@ -72,7 +80,8 @@ SENTENCIA ::= ASIGNACION       PuntoComa
             | IF_STATEMENT
             | WHILE_LOOP
             | FOR_LOOP
-            | Return EXPRESION PuntoComa ;
+            | Return EXPRESION PuntoComa
+            | Break PuntoComa;
 
 
 DECLARACION_TIPADA ::= Int Identificador Op_asignacion EXPRESION

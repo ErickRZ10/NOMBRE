@@ -24,6 +24,8 @@ public enum Tokens {
     BREAK,          // Break loop
     CONTINUE,       // Continue to next iteration
     DEF,
+    INPUT,
+    MAIN,
 
     // ───────────────────────────────────────────────
     // Rust-Inspired Keywords
