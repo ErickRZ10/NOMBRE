@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import javax.swing.JFileChooser;
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.File;       
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,19 +34,21 @@ import java_cup.runtime.Symbol;
 import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 
 public class FrmPrincipal extends javax.swing.JFrame {
-
-    /** Archivo actualmente abierto en el editor */
-    private File archivoActual;
-
-    /** Indica si el texto tiene cambios sin guardar */
-    private boolean hayCambios = false;
 
     /**
      * Creates new form FrmPrincipal
      */
+    
+    /** Archivo actualmente abierto en el editor */
+    private File archivoActual;
+    private boolean hayCambios = false;
+
+    
     public FrmPrincipal() {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -60,23 +62,21 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
 
         jLabel5.setText("Listo");
-        // Confirmación al intentar cerrar la ventana. Si hay cambios sin
-        // guardar se pregunta si se desean guardar antes de salir.
+        // Confirmación al intentar cerrar la ventana
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent evt) {
-                if (!confirmarGuardarCambios()) {
+                 if (!confirmarGuardarCambios()) {
                     return; // El usuario canceló el cierre
                 }
-                dispose();
+                 dispose();
             }
         });
     }
     
     private void analizarLexico() throws IOException{
         int cont = 1;
-        
         String expr = (String) areaTexto.getText();
         Lexer lexer = new Lexer(new StringReader(expr));
         String resultado = "LINEA " + cont + "\t\tSIMBOLO\n";
@@ -665,12 +665,29 @@ case ARROW:
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    // ----- Manejo de archivos -----
-
+   // ----- Manejo de archivos -----
+    
     private void limpiarAnalisis() {
         txtAnalizarLex.setText("");
         txtAnalizarSin.setText("");
+        limpiarResaltado();
+    }
+ private void limpiarResaltado() {
+        Highlighter h = areaTexto.getHighlighter();
+        h.removeAllHighlights();
+    }
+
+    private void resaltarLineaError(int linea){
+        limpiarResaltado();
+        Highlighter h = areaTexto.getHighlighter();
+        Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,200,200));
+        try {
+            int start = areaTexto.getLineStartOffset(linea-1);
+            int end = areaTexto.getLineEndOffset(linea-1);
+            h.addHighlight(start, end, painter);
+        } catch (BadLocationException ex) {
+            // ignore
+        }
     }
 
     private void actualizarTitulo() {
@@ -702,12 +719,12 @@ case ARROW:
         }
         return true;
     }
-
+    
     private void abrirArchivo() {
         if (!confirmarGuardarCambios()) {
             return;
         }
-
+        
         JFileChooser chooser = new JFileChooser();
         int seleccion = chooser.showOpenDialog(this);
         if (seleccion == JFileChooser.APPROVE_OPTION) {
@@ -764,7 +781,6 @@ case ARROW:
         if (!confirmarGuardarCambios()) {
             return;
         }
-
         Object[] opciones = {"Crear", "Cancelar"};
         int opcion = JOptionPane.showOptionDialog(
                 this,
@@ -776,10 +792,10 @@ case ARROW:
                 opciones,
                 opciones[0]);
 
-        if (opcion != JOptionPane.YES_OPTION) {
+         if (opcion != JOptionPane.YES_OPTION) {
             return;
         }
-
+        
         limpiarAnalisis();
         areaTexto.setText("");
         archivoActual = null;
@@ -795,12 +811,15 @@ case ARROW:
 
         try {
             s.parse();
-            txtAnalizarSin.setText("Analisis realizado correctamente");
+            txtAnalizarSin.setText("An\u00e1lisis realizado correctamente");
             txtAnalizarSin.setForeground(new Color(25, 111, 61));
+            limpiarResaltado();
         } catch (Exception ex) {
             Symbol sym = s.getS();
-            txtAnalizarSin.setText("Error de sintaxis. Linea: " + (sym.right + 1) + " Columna: " + (sym.left + 1) + ", Texto: \"" + sym.value + "\"");
+            txtAnalizarSin.setText("Error de sintaxis en linea " + (sym.right + 1) +
+                    " columna " + (sym.left + 1) + ". Texto inesperado: \"" + sym.value + "\"");
             txtAnalizarSin.setForeground(Color.red);
+            resaltarLineaError(sym.right + 1);
         }
     }//GEN-LAST:event_btnAnalizarSinActionPerformed
 
@@ -808,6 +827,7 @@ case ARROW:
         // TODO add your handling code here:
         txtAnalizarLex.setText(null);
         txtAnalizarSin.setText(null);
+        limpiarResaltado();
     }//GEN-LAST:event_btnLimpiarLexActionPerformed
 
     private void btnAnalizarLexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarLexActionPerformed
@@ -824,6 +844,7 @@ case ARROW:
 
     private void btnGuardar_ComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar_ComoActionPerformed
         guardarComo();
+
     }//GEN-LAST:event_btnGuardar_ComoActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
@@ -835,11 +856,13 @@ case ARROW:
     }//GEN-LAST:event_T_AbrirActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        guardar();
+        // TODO add your handling code here:
+         guardar();
+        
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void B_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B_NuevoActionPerformed
-        nuevoArchivo();
+          nuevoArchivo();
     }//GEN-LAST:event_B_NuevoActionPerformed
 
     /**
