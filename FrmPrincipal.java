@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import javax.swing.JFileChooser;
 import java.io.BufferedReader;
-import java.io.File;        
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,6 +32,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java_cup.runtime.Symbol;
 import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 public class FrmPrincipal extends javax.swing.JFrame {
@@ -39,12 +41,25 @@ public class FrmPrincipal extends javax.swing.JFrame {
     /** Archivo actualmente abierto en el editor */
     private File archivoActual;
 
+    /** Indica si el texto tiene cambios sin guardar */
+    private boolean hayCambios = false;
+
     /**
      * Creates new form FrmPrincipal
      */
     public FrmPrincipal() {
         initComponents();
         this.setLocationRelativeTo(null);
+        actualizarTitulo();
+
+        areaTexto.getDocument().addDocumentListener(new DocumentListener() {
+            private void cambio() { hayCambios = true; actualizarTitulo(); }
+            @Override public void insertUpdate(DocumentEvent e) { cambio(); }
+            @Override public void removeUpdate(DocumentEvent e) { cambio(); }
+            @Override public void changedUpdate(DocumentEvent e) { cambio(); }
+        });
+
+        jLabel5.setText("Listo");
         // Confirmación al intentar cerrar la ventana
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -657,7 +672,47 @@ case ARROW:
     }// </editor-fold>//GEN-END:initComponents
 
     // ----- Manejo de archivos -----
+
+    private void limpiarAnalisis() {
+        txtAnalizarLex.setText("");
+        txtAnalizarSin.setText("");
+    }
+
+    private void actualizarTitulo() {
+        String nombre = (archivoActual != null) ? archivoActual.getName() : "Sin nombre";
+        setTitle("Editor - " + nombre + (hayCambios ? " *" : ""));
+    }
+
+    private boolean confirmarGuardarCambios() {
+        if (!hayCambios) {
+            return true;
+        }
+
+        Object[] opciones = {"Guardar", "No guardar", "Cancelar"};
+        int opcion = JOptionPane.showOptionDialog(
+                this,
+                "El archivo actual tiene cambios sin guardar. ¿Desea guardarlos?",
+                "Guardar cambios",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
+
+        if (opcion == JOptionPane.CANCEL_OPTION || opcion == JOptionPane.CLOSED_OPTION) {
+            return false;
+        }
+        if (opcion == JOptionPane.YES_OPTION) {
+            guardar();
+        }
+        return true;
+    }
+
     private void abrirArchivo() {
+        if (!confirmarGuardarCambios()) {
+            return;
+        }
+
         JFileChooser chooser = new JFileChooser();
         int seleccion = chooser.showOpenDialog(this);
         if (seleccion == JFileChooser.APPROVE_OPTION) {
@@ -665,6 +720,10 @@ case ARROW:
             try {
                 String contenido = new String(Files.readAllBytes(archivoActual.toPath()));
                 areaTexto.setText(contenido);
+                hayCambios = false;
+                limpiarAnalisis();
+                actualizarTitulo();
+                jLabel5.setText("Archivo abierto: " + archivoActual.getName());
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Error al abrir el archivo: " + ex.getMessage());
             }
@@ -674,6 +733,9 @@ case ARROW:
     private void guardarArchivo(File archivo) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo))) {
             bw.write(areaTexto.getText());
+            hayCambios = false;
+            actualizarTitulo();
+            jLabel5.setText("Archivo guardado: " + archivo.getName());
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage());
         }
@@ -699,23 +761,36 @@ case ARROW:
             archivoActual = archivo;
             guardarArchivo(archivoActual);
             JOptionPane.showMessageDialog(this, "Archivo guardado correctamente.");
+            jLabel5.setText("Archivo guardado: " + archivoActual.getName());
         }
     }
 
     private void nuevoArchivo() {
-        int opcion = JOptionPane.showConfirmDialog(
+        if (!confirmarGuardarCambios()) {
+            return;
+        }
+
+        Object[] opciones = {"Crear", "Cancelar"};
+        int opcion = JOptionPane.showOptionDialog(
                 this,
-                "¿Deseas crear un nuevo archivo? Se perderán los cambios no guardados.",
+                "¿Desea crear un nuevo archivo?",
                 "Confirmar nuevo archivo",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
 
-        if (opcion == JOptionPane.YES_OPTION) {
-            txtAnalizarLex.setText(null);
-            txtAnalizarSin.setText(null);
-            areaTexto.setText("");
-            archivoActual = null;
+        if (opcion != JOptionPane.YES_OPTION) {
+            return;
         }
+
+        limpiarAnalisis();
+        areaTexto.setText("");
+        archivoActual = null;
+        hayCambios = false;
+        actualizarTitulo();
+        jLabel5.setText("Nuevo archivo");
     }
 
     private void btnAnalizarSinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarSinActionPerformed
