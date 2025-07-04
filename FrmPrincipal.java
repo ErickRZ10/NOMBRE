@@ -36,6 +36,9 @@ import javax.swing.JOptionPane;
 
 public class FrmPrincipal extends javax.swing.JFrame {
 
+    /** Archivo actualmente abierto en el editor */
+    private File archivoActual;
+
     /**
      * Creates new form FrmPrincipal
      */
@@ -653,6 +656,68 @@ case ARROW:
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // ----- Manejo de archivos -----
+    private void abrirArchivo() {
+        JFileChooser chooser = new JFileChooser();
+        int seleccion = chooser.showOpenDialog(this);
+        if (seleccion == JFileChooser.APPROVE_OPTION) {
+            archivoActual = chooser.getSelectedFile();
+            try {
+                String contenido = new String(Files.readAllBytes(archivoActual.toPath()));
+                areaTexto.setText(contenido);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error al abrir el archivo: " + ex.getMessage());
+            }
+        }
+    }
+
+    private void guardarArchivo(File archivo) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo))) {
+            bw.write(areaTexto.getText());
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage());
+        }
+    }
+
+    private void guardar() {
+        if (archivoActual != null) {
+            guardarArchivo(archivoActual);
+        } else {
+            guardarComo();
+        }
+    }
+
+    private void guardarComo() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Guardar como...");
+        int seleccion = fileChooser.showSaveDialog(this);
+        if (seleccion == JFileChooser.APPROVE_OPTION) {
+            File archivo = fileChooser.getSelectedFile();
+            if (!archivo.getName().toLowerCase().endsWith(".txt")) {
+                archivo = new File(archivo.getAbsolutePath() + ".txt");
+            }
+            archivoActual = archivo;
+            guardarArchivo(archivoActual);
+            JOptionPane.showMessageDialog(this, "Archivo guardado correctamente.");
+        }
+    }
+
+    private void nuevoArchivo() {
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Deseas crear un nuevo archivo? Se perderán los cambios no guardados.",
+                "Confirmar nuevo archivo",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            txtAnalizarLex.setText(null);
+            txtAnalizarSin.setText(null);
+            areaTexto.setText("");
+            archivoActual = null;
+        }
+    }
+
     private void btnAnalizarSinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarSinActionPerformed
         // TODO add your handling code here:
         String ST = areaTexto.getText();
@@ -684,46 +749,11 @@ case ARROW:
     }//GEN-LAST:event_btnAnalizarLexActionPerformed
 
     private void B_AbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B_AbrirActionPerformed
-        // TODO add your handling code here
-        // TODO add your handling code here:
-        JFileChooser chooser = new JFileChooser();
-        chooser.showOpenDialog(null);
-        File archivo = new File(chooser.getSelectedFile().getAbsolutePath());
-
-        try {
-            String ST = new String(Files.readAllBytes(archivo.toPath()));
-            areaTexto.setText(ST);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        abrirArchivo();
     }//GEN-LAST:event_B_AbrirActionPerformed
 
     private void btnGuardar_ComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar_ComoActionPerformed
-        // TODO add your handling code here:
-        btnGuardar_Como.addActionListener(e -> {
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setDialogTitle("Guardar como...");
-    int seleccion = fileChooser.showSaveDialog(null);
-
-    if (seleccion == JFileChooser.APPROVE_OPTION) {
-        File archivo = fileChooser.getSelectedFile();
-
-        // Asegurarse que tenga extensión .txt
-        if (!archivo.getName().toLowerCase().endsWith(".txt")) {
-            archivo = new File(archivo.getAbsolutePath() + ".txt");
-        }
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo))) {
-            bw.write(areaTexto.getText());  // Usa el nombre real de tu JTextArea aquí
-            JOptionPane.showMessageDialog(null, "Archivo guardado correctamente.");
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Error al guardar: " + ex.getMessage());
-        }
-    }
-});
-
+        guardarComo();
     }//GEN-LAST:event_btnGuardar_ComoActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
@@ -731,49 +761,15 @@ case ARROW:
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void T_AbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_T_AbrirActionPerformed
-        // TODO add your handling code here:
-        // TODO add your handling code here
-        // TODO add your handling code here:
-        JFileChooser chooser = new JFileChooser();
-        chooser.showOpenDialog(null);
-        File archivo = new File(chooser.getSelectedFile().getAbsolutePath());
-
-        try {
-            String ST = new String(Files.readAllBytes(archivo.toPath()));
-            areaTexto.setText(ST);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        abrirArchivo();
     }//GEN-LAST:event_T_AbrirActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // TODO add your handling code here:
-        
-        
+        guardar();
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void B_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B_NuevoActionPerformed
-        // TODO add your handling code here:}}
-            // TODO add your handling code here:
-int opcion = JOptionPane.showConfirmDialog(
-        this, 
-        "¿Deseas crear un nuevo archivo? Se perderán los cambios no guardados.", 
-        "Confirmar nuevo archivo",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.WARNING_MESSAGE
-    );
-
-    if (opcion == JOptionPane.YES_OPTION) {
-        txtAnalizarLex.setText(null);
-        txtAnalizarSin.setText(null);
-        areaTexto.setText("");
-        // (Opcional) archivoActual = null;
-        // (Opcional) setTitle("PyRust IDE - Nuevo archivo");
-    }                                          
-
-     // ABRIR
+        nuevoArchivo();
     }//GEN-LAST:event_B_NuevoActionPerformed
 
     /**
