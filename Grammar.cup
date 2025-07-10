@@ -18,7 +18,7 @@ terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corche
 /* ─────────────  NO TERMINALES  ───────────── */
 non terminal PROGRAMA, OPC_DECL, OPC_FUNCIONES, DECLARACIONES, FUNCION_PRINCIPAL, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION,
              EXPRESION, LLAMADA_FUNCION, IF_STATEMENT, ELIF_BLOQUES, ELSE_BLOQUE, DECLARACION_TIPADA,
-             WHILE_LOOP, FOR_LOOP, PRINT_STMT, VALOR, IMPORT_STMT, LISTA_VALORES ;
+             WHILE_LOOP, FOR_LOOP, PRINT_STMT, VALOR, IMPORT_STMT, LISTA_VALORES, OPC_INIT ;
 
 /* ─────────────  PRECEDENCIAS  ───────────── */
 precedence left Op_logico;
@@ -86,14 +86,17 @@ SENTENCIA ::= ASIGNACION       PuntoComa
             | Break PuntoComa;
 
 
-DECLARACION_TIPADA ::= Int Identificador Op_asignacion EXPRESION
-                     | Float Identificador Op_asignacion EXPRESION
-                     | Bool Identificador Op_asignacion EXPRESION
-                     | String Identificador Op_asignacion EXPRESION
+DECLARACION_TIPADA ::= Int Identificador OPC_INIT
+                     | Float Identificador OPC_INIT
+                     | Bool Identificador OPC_INIT
+                     | String Identificador OPC_INIT
                      | Const Int Identificador Op_asignacion EXPRESION
                      | Const Float Identificador Op_asignacion EXPRESION
                      | Const Bool Identificador Op_asignacion EXPRESION
                      | Const String Identificador Op_asignacion EXPRESION ;
+
+OPC_INIT ::= Op_asignacion EXPRESION
+           | /* vacío */;
 
 
 /* 9. Asignación */
