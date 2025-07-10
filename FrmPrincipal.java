@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
+import analizador2.SemanticAnalyzer;
 import javax.swing.JFileChooser;
 import java.io.BufferedReader;
 import java.io.File;       
@@ -811,7 +812,8 @@ case ARROW:
 
         try {
             s.parse();
-            txtAnalizarSin.setText("An\u00e1lisis realizado correctamente");
+            String reporte = SemanticAnalyzer.analyze(ST);
+            txtAnalizarSin.setText("An\u00e1lisis realizado correctamente\n" + reporte);
             txtAnalizarSin.setForeground(new Color(25, 111, 61));
             limpiarResaltado();
         } catch (Exception ex) {
