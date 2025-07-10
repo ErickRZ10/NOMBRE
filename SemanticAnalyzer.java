@@ -75,9 +75,25 @@ public class SemanticAnalyzer {
         SymbolTable.clear();
         LexerCup lexer = new LexerCup(new StringReader(code));
         Symbol tok;
+        boolean inMain = false;
+        int braceDepth = 0;
         while(true) {
             tok = lexer.next_token();
             if(tok.sym == sym.EOF) break;
+
+            if(tok.sym == sym.Main) {
+                inMain = true;
+                braceDepth = 0;
+                continue;
+            }
+            if(inMain && tok.sym == sym.Llave_a) {
+                braceDepth++;
+            } else if(inMain && tok.sym == sym.Llave_c) {
+                braceDepth--;
+                if(braceDepth <= 0) {
+                    inMain = false;
+                }
+            }
             if(tok.sym == sym.Const) {
                 Symbol typeTok = lexer.next_token();
                 if(!isType(typeTok.sym)) continue; // invalid
@@ -89,7 +105,7 @@ public class SemanticAnalyzer {
                 if(opTok.sym != sym.Op_asignacion) continue;
                 Symbol firstExpr = lexer.next_token();
                 Expression expr = readExpression(lexer, firstExpr);
-                SymbolTable.declare(nombre, tipoDato, expr.valor, true, "global");
+                SymbolTable.declare(nombre, tipoDato, expr.valor, true, inMain ? "main" : "global");
                 if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
                     SymbolTable.addError("Error: tipo incompatible para " + nombre);
                 }
@@ -102,7 +118,7 @@ public class SemanticAnalyzer {
                 if(opTok.sym != sym.Op_asignacion) continue;
                 Symbol firstExpr = lexer.next_token();
                 Expression expr = readExpression(lexer, firstExpr);
-                SymbolTable.declare(nombre, tipoDato, expr.valor, false, "global");
+                SymbolTable.declare(nombre, tipoDato, expr.valor, false, inMain ? "main" : "global");
                 if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
                     SymbolTable.addError("Error: tipo incompatible para " + nombre);
                 }

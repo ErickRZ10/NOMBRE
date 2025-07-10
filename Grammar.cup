@@ -16,7 +16,7 @@ terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corche
          NumeroEntero, NumeroDecimal, Int, Float, Const, Bool, String, Main, Cadena, Char, Identificador,Break, Error;
 
 /* ─────────────  NO TERMINALES  ───────────── */
-non terminal INICIO, BLOQUE, DECLARACIONES, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION, 
+non terminal PROGRAMA, OPC_DECL, OPC_FUNCIONES, DECLARACIONES, FUNCION_PRINCIPAL, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION,
              EXPRESION, LLAMADA_FUNCION, IF_STATEMENT, ELIF_BLOQUES, ELSE_BLOQUE, DECLARACION_TIPADA,
              WHILE_LOOP, FOR_LOOP, PRINT_STMT, VALOR, IMPORT_STMT, LISTA_VALORES ;
 
@@ -28,18 +28,18 @@ precedence left Multiplicacion, Division, Modulo;
 precedence right Potencia;
 
 /* ─────────────  INICIO  ───────────── */
-start with INICIO;
+start with PROGRAMA;
 
 /* ─────────────  PRODUCCIONES  ───────────── */
 
 /* 1. Programa: declaraciones globales + funciones */
-INICIO ::= BLOQUE
-         | INICIO BLOQUE;
+PROGRAMA ::= OPC_DECL FUNCION_PRINCIPAL OPC_FUNCIONES;
 
-BLOQUE ::= FUNCION
-         | ASIGNACION PuntoComa
-         | DECLARACION_TIPADA PuntoComa
-         | IMPORT_STMT PuntoComa;
+OPC_DECL ::= DECLARACIONES
+           | /* vacío */;
+
+OPC_FUNCIONES ::= FUNCIONES
+                | /* vacío */;
 
 
 /* 2. Declaraciones globales */
@@ -58,9 +58,11 @@ FUNCIONES ::= FUNCION
             | FUNCIONES FUNCION;
 
 
-/* 5. Definición de función */
-FUNCION ::= Def Identificador Parentesis_a PARAMS Parentesis_c Llave_a SENTENCIAS Llave_c
-            |Def Main Parentesis_a PARAMS Parentesis_c Llave_a SENTENCIAS Llave_c;
+/* 5. Definición de función principal */
+FUNCION_PRINCIPAL ::= Def Main Parentesis_a PARAMS Parentesis_c Llave_a SENTENCIAS Llave_c;
+
+/* 6. Definición de función regular */
+FUNCION ::= Def Identificador Parentesis_a PARAMS Parentesis_c Llave_a SENTENCIAS Llave_c;
 
 
 /* 6. Parámetros */
