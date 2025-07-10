@@ -60,6 +60,8 @@ WHITESPACE = [ \t\r\n]+
 ( "print" )      { return new Symbol(sym.Print, yychar, yyline, yytext()); }
 ("input")   { return new Symbol(sym.Input, yychar, yyline, yytext()); }
 ( "return" )   { return new Symbol(sym.Return, yychar, yyline, yytext()); }
+("const")      { return new Symbol(sym.Const, yychar, yyline, yytext()); }
+
 
 /* ─────────────────────────────
    Operadores Aritméticos

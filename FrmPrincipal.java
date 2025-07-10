@@ -429,7 +429,7 @@ case ARROW:
         btnAnalizarSin = new javax.swing.JButton();
         jSplitPane2 = new javax.swing.JSplitPane();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTree2 = new javax.swing.JTree();
+        RECIENTES = new javax.swing.JTree();
         jScrollPane1 = new javax.swing.JScrollPane();
         areaTexto = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -509,7 +509,7 @@ case ARROW:
 
         jSplitPane2.setDividerLocation(260);
 
-        jScrollPane5.setViewportView(jTree2);
+        jScrollPane5.setViewportView(RECIENTES);
 
         jSplitPane2.setLeftComponent(jScrollPane5);
 
@@ -656,7 +656,7 @@ case ARROW:
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 1098, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(184, 184, 184))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -905,6 +905,7 @@ case ARROW:
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem B_Abrir;
     private javax.swing.JMenuItem B_Nuevo;
+    private javax.swing.JTree RECIENTES;
     private javax.swing.JButton T_Abrir;
     private javax.swing.JTextArea areaTexto;
     private javax.swing.JButton btnAnalizarLex;
@@ -933,7 +934,6 @@ case ARROW:
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JTree jTree2;
     private javax.swing.JTextArea txtAnalizarLex;
     private javax.swing.JTextArea txtAnalizarSin;
     // End of variables declaration//GEN-END:variables

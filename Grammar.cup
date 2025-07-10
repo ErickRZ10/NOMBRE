@@ -13,7 +13,7 @@ parser code
 terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corchete_a, Flecha, Corchete_c, 
          Return, Print, Parentesis_a, Parentesis_c, Llave_a, Llave_c, Coma, PuntoComa, DosPuntos, True, False, None,
          Suma, Resta, Multiplicacion, Division, Modulo, Potencia, Op_logico, Op_relacional, Op_asignacion,
-         NumeroEntero, NumeroDecimal, Int, Float, Bool, String, Main, Cadena, Char, Identificador,Break, Error;
+         NumeroEntero, NumeroDecimal, Int, Float, Const, Bool, String, Main, Cadena, Char, Identificador,Break, Error;
 
 /* ─────────────  NO TERMINALES  ───────────── */
 non terminal INICIO, BLOQUE, DECLARACIONES, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION, 
@@ -87,7 +87,11 @@ SENTENCIA ::= ASIGNACION       PuntoComa
 DECLARACION_TIPADA ::= Int Identificador Op_asignacion EXPRESION
                      | Float Identificador Op_asignacion EXPRESION
                      | Bool Identificador Op_asignacion EXPRESION
-                     | String Identificador Op_asignacion EXPRESION ;
+                     | String Identificador Op_asignacion EXPRESION
+                     | Const Int Identificador Op_asignacion EXPRESION
+                     | Const Float Identificador Op_asignacion EXPRESION
+                     | Const Bool Identificador Op_asignacion EXPRESION
+                     | Const String Identificador Op_asignacion EXPRESION ;
 
 
 /* 9. Asignación */
