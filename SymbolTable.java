@@ -67,6 +67,16 @@ public class SymbolTable {
         }
     }
 
+    private static boolean isSimpleConstant(String valor) {
+        valor = valor.trim();
+        if(valor.matches("-?\\d+(\\.\\d+)?")) return true;
+        if(valor.matches("\".*\"")) return true;
+        if(valor.matches("'.*'")) return true;
+        if(valor.equalsIgnoreCase("true") || valor.equalsIgnoreCase("false") || valor.equalsIgnoreCase("none"))
+            return true;
+        return false;
+    }
+
 
     public static void clear() {
         tabla.clear();
@@ -87,11 +97,12 @@ public class SymbolTable {
         e.operaciones.add("Declaraci\u00f3n");
         if(valor != null && !valor.isEmpty()) {
             String op = "Asignaci\u00f3n: " + valor;
+            boolean simpleConst = isSimpleConstant(valor);
             if(tipoDato.equals("int") || tipoDato.equals("float")) {
                 Double res = evalNumericExpr(valor);
                 if(res != null) {
                     e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
-                    op += " = " + e.valor;
+                    if(!simpleConst) op += " = " + e.valor;
                 }
             }
             e.operaciones.add(op);
@@ -113,11 +124,12 @@ public class SymbolTable {
             errores.add("Error: tipo incompatible para " + nombre + ". Se esperaba " + e.tipoDato + " y se obtuvo " + tipoDato);
         }
         String op = "Asignaci\u00f3n: " + valor;
+        boolean simpleConst = isSimpleConstant(valor);
         if(e.tipoDato.equals("int") || e.tipoDato.equals("float")) {
             Double res = evalNumericExpr(valor);
             if(res != null) {
                 e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
-                op += " = " + e.valor;
+                if(!simpleConst) op += " = " + e.valor;
             } else {
                 e.valor = valor;
             }
