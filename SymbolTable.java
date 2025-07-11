@@ -193,8 +193,10 @@ public class SymbolTable {
     public static String report() {
         StringBuilder sb = new StringBuilder();
         sb.append("Tabla de S\u00edmbolos:\n");
-        sb.append("Tipo\tNombre\tTipoDato\tValoar\tAlcance\tSecuencia de Operaciones\n");
+        sb.append("ID\tTipo\tNombre\tTipoDato\tValoar\tAlcance\tSecuencia de Operaciones\n");
+        int id = 1;
         for(SymbolEntry e : tabla.values()) {
+            sb.append(id++).append('\t');
             sb.append(e.tipo).append('\t').append(e.nombre).append('\t').append(e.tipoDato)
               .append('\t').append(e.valor).append('\t').append(e.alcance).append('\t');
             sb.append(String.join(", ", e.operaciones)).append('\n');
