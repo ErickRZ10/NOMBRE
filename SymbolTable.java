@@ -58,7 +58,7 @@ public class SymbolTable {
             }}
     }
 
-    private static Double evalNumericExpr(String expr) {
+        private static Double evalNumericExpr(String expr) {
         try {
             Evaluator ev = new Evaluator(expr);
             return ev.parseExpression();
@@ -66,7 +66,7 @@ public class SymbolTable {
             return null;
         }
     }
-
+        
     private static boolean numericExprHasInvalidTokens(String expr) {
         String[] toks = expr.trim().isEmpty() ? new String[0] : expr.trim().split("\\s+");
         for(String tok : toks) {
@@ -87,6 +87,7 @@ public class SymbolTable {
         return false;
     }
 
+
     private static boolean isSimpleConstant(String valor) {
         valor = valor.trim();
         if(valor.matches("-?\\d+(\\.\\d+)?")) return true;
@@ -96,7 +97,6 @@ public class SymbolTable {
             return true;
         return false;
     }
-
 
     public static void clear() {
         tabla.clear();
@@ -131,7 +131,7 @@ public class SymbolTable {
                         if(!simpleConst) op += " = " + e.valor;
                     }
                 }
-            } else {
+                } else {
                 if(!hayError) e.valor = valor;
             }
             if(!hayError) e.operaciones.add(op);
@@ -141,7 +141,7 @@ public class SymbolTable {
     }
 
     public static void assign(String nombre, String tipoDato, String valor) {
-        SymbolEntry e = tabla.get(nombre);
+         SymbolEntry e = tabla.get(nombre);
         if(e == null) {
             errores.add("Error: variable no declarada " + nombre);
             return;
@@ -192,17 +192,21 @@ public class SymbolTable {
 
     public static String report() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Tabla de S\u00edmbolos:\n");
-        sb.append("Tipo\tNombre\tTipoDato\tValoar\tAlcance\tSecuencia de Operaciones\n");
+        sb.append("\nTabla de S\u00edmbolos:\n");
+        sb.append("ID\tTipo\tNombre\tTipoDato\tValor\tAlcance\tSecuencia de Operaciones\n");
+        sb.append("-------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+        int id = 1;
         for(SymbolEntry e : tabla.values()) {
+            sb.append(id++).append('\t');
             sb.append(e.tipo).append('\t').append(e.nombre).append('\t').append(e.tipoDato)
               .append('\t').append(e.valor).append('\t').append(e.alcance).append('\t');
             sb.append(String.join(", ", e.operaciones)).append('\n');
+            
         }
         if(!errores.isEmpty()) {
             sb.append("\nErrores Sem\u00e1nticos:\n");
             for(String err : errores) sb.append(err).append('\n');
-        }
+        }  else {sb.append("\nAn\u00e1lisis Sem\u00e1ntico Realizado Correctamente\n");}
         return sb.toString();
     }
 }
