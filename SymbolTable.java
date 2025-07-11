@@ -115,22 +115,29 @@ public class SymbolTable {
         String tipo = constante ? "constante" : "variable";
         SymbolEntry e = new SymbolEntry(tipo, nombre, tipoDato, valor, alcance, constante);
         e.operaciones.add("Declaraci\u00f3n");
+        boolean hayError = false;
         if(valor != null && !valor.isEmpty()) {
             String op = "Asignaci\u00f3n: " + valor;
             boolean simpleConst = isSimpleConstant(valor);
             if(tipoDato.equals("int") || tipoDato.equals("float")) {
                 if(numericExprHasInvalidTokens(valor)) {
                     errores.add("Error: tipo incompatible en operaci\u00f3n para " + nombre);
+                    hayError = true;
                 }
-                Double res = evalNumericExpr(valor);
-                if(res != null) {
-                    e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
-                    if(!simpleConst) op += " = " + e.valor;
+                if(!hayError) {
+                    Double res = evalNumericExpr(valor);
+                    if(res != null) {
+                        e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
+                        if(!simpleConst) op += " = " + e.valor;
+                    }
                 }
+            } else {
+                if(!hayError) e.valor = valor;
             }
-            e.operaciones.add(op);
+            if(!hayError) e.operaciones.add(op);
         }
-        tabla.put(nombre, e);
+        if(!hayError)
+            tabla.put(nombre, e);
     }
 
     public static void assign(String nombre, String tipoDato, String valor) {
@@ -143,26 +150,31 @@ public class SymbolTable {
             errores.add("Error: no se puede modificar la constante " + nombre);
             return;
         }
+        boolean hayError = false;
         if(tipoDato != null && !tipoDato.equals("desconocido") && !e.tipoDato.equals(tipoDato)) {
             errores.add("Error: tipo incompatible para " + nombre + ". Se esperaba " + e.tipoDato + " y se obtuvo " + tipoDato);
+            hayError = true;
         }
         String op = "Asignaci\u00f3n: " + valor;
         boolean simpleConst = isSimpleConstant(valor);
         if(e.tipoDato.equals("int") || e.tipoDato.equals("float")) {
             if(numericExprHasInvalidTokens(valor)) {
                 errores.add("Error: tipo incompatible en operaci\u00f3n para " + nombre);
+                hayError = true;
             }
-            Double res = evalNumericExpr(valor);
-            if(res != null) {
-                e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
-                if(!simpleConst) op += " = " + e.valor;
-            } else {
-                e.valor = valor;
+            if(!hayError) {
+                Double res = evalNumericExpr(valor);
+                if(res != null) {
+                    e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
+                    if(!simpleConst) op += " = " + e.valor;
+                } else {
+                    e.valor = valor;
+                }
             }
         } else {
-            e.valor = valor;
+            if(!hayError) e.valor = valor;
         }
-        e.operaciones.add(op);
+        if(!hayError) e.operaciones.add(op);
     }
 
     public static String getType(String nombre) {
