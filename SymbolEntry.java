@@ -7,6 +7,7 @@ public class SymbolEntry {
     public String valor;
     public String alcance;
     public boolean esConstante;
+    public java.util.List<String> operaciones;
 
     public SymbolEntry(String tipo, String nombre, String tipoDato, String valor, String alcance, boolean esConstante) {
         this.tipo = tipo;
@@ -15,5 +16,6 @@ public class SymbolEntry {
         this.valor = valor;
         this.alcance = alcance;
         this.esConstante = esConstante;
+        this.operaciones = new java.util.ArrayList<>();
     }
 }
