@@ -67,6 +67,26 @@ public class SymbolTable {
         }
     }
 
+    private static boolean numericExprHasInvalidTokens(String expr) {
+        String[] toks = expr.trim().isEmpty() ? new String[0] : expr.trim().split("\\s+");
+        for(String tok : toks) {
+            if(tok.isEmpty()) continue;
+            if(tok.equals("+") || tok.equals("-") || tok.equals("*") || tok.equals("/") ||
+               tok.equals("%") || tok.equals("(") || tok.equals(")")) continue;
+            if(tok.matches("-?\\d+(\\.\\d+)?")) continue;
+            SymbolEntry ent = tabla.get(tok);
+            if(ent != null) {
+                if(!ent.tipoDato.equals("int") && !ent.tipoDato.equals("float")) return true;
+            } else {
+                if(tok.matches("\".*\"") || tok.matches("'.*'") ||
+                   tok.equalsIgnoreCase("true") || tok.equalsIgnoreCase("false") ||
+                   tok.equalsIgnoreCase("none")) return true;
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean isSimpleConstant(String valor) {
         valor = valor.trim();
         if(valor.matches("-?\\d+(\\.\\d+)?")) return true;
@@ -99,6 +119,9 @@ public class SymbolTable {
             String op = "Asignaci\u00f3n: " + valor;
             boolean simpleConst = isSimpleConstant(valor);
             if(tipoDato.equals("int") || tipoDato.equals("float")) {
+                if(numericExprHasInvalidTokens(valor)) {
+                    errores.add("Error: tipo incompatible en operaci\u00f3n para " + nombre);
+                }
                 Double res = evalNumericExpr(valor);
                 if(res != null) {
                     e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
@@ -126,6 +149,9 @@ public class SymbolTable {
         String op = "Asignaci\u00f3n: " + valor;
         boolean simpleConst = isSimpleConstant(valor);
         if(e.tipoDato.equals("int") || e.tipoDato.equals("float")) {
+            if(numericExprHasInvalidTokens(valor)) {
+                errores.add("Error: tipo incompatible en operaci\u00f3n para " + nombre);
+            }
             Double res = evalNumericExpr(valor);
             if(res != null) {
                 e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
