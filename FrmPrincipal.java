@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
-import analizador2.SemanticAnalyzer;
 import javax.swing.JFileChooser;
 import java.io.BufferedReader;
 import java.io.File;       

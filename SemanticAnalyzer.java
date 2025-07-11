@@ -1,3 +1,12 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+/**
+ *
+ * @author ejrz0
+ */
 package analizador2;
 
 import java.io.IOException;
@@ -80,7 +89,7 @@ public class SemanticAnalyzer {
         while(true) {
             tok = lexer.next_token();
             if(tok.sym == sym.EOF) break;
-
+            
             if(tok.sym == sym.Main) {
                 inMain = true;
                 braceDepth = 0;

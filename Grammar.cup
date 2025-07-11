@@ -95,6 +95,7 @@ DECLARACION_TIPADA ::= Int Identificador OPC_INIT
                      | Const Bool Identificador Op_asignacion EXPRESION
                      | Const String Identificador Op_asignacion EXPRESION ;
 
+
 OPC_INIT ::= Op_asignacion EXPRESION
            | /* vacío */;
 
