@@ -89,6 +89,8 @@ public class SemanticAnalyzer {
         while(true) {
             tok = lexer.next_token();
             if(tok.sym == sym.EOF) break;
+
+            SymbolTable.setCurrentScope(inMain ? "main" : "global");
             
             if(tok.sym == sym.Main) {
                 inMain = true;
