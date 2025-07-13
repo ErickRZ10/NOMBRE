@@ -107,16 +107,20 @@ public class SymbolTable {
         errores.add(e);
     }
 
-    public static void declare(String nombre, String tipoDato, String valor, boolean constante, String alcance) {
+    public static void declare(String nombre, String tipoDato, String valor, String tipoValor, boolean constante, String alcance) {
         if(tabla.containsKey(nombre)) {
             errores.add("Error: doble declaraci\u00f3n de " + nombre);
             return;
         }
         String tipo = constante ? "constante" : "variable";
-        SymbolEntry e = new SymbolEntry(tipo, nombre, tipoDato, valor, alcance, constante);
+        SymbolEntry e = new SymbolEntry(tipo, nombre, tipoDato, "", alcance, constante);
         e.operaciones.add("Declaraci\u00f3n");
         boolean hayError = false;
+        boolean asignar = true;
         if(valor != null && !valor.isEmpty()) {
+            if(tipoValor != null && !tipoValor.equals("desconocido") && !tipoDato.equals(tipoValor)) {
+                asignar = false;
+            }
             String op = "Asignaci\u00f3n: " + valor;
             boolean simpleConst = isSimpleConstant(valor);
             if(tipoDato.equals("int") || tipoDato.equals("float")) {
@@ -124,7 +128,7 @@ public class SymbolTable {
                     errores.add("Error: tipo incompatible en operaci\u00f3n para " + nombre);
                     hayError = true;
                 }
-                if(!hayError) {
+                if(!hayError && asignar) {
                     Double res = evalNumericExpr(valor);
                     if(res != null) {
                         e.valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
@@ -132,9 +136,9 @@ public class SymbolTable {
                     }
                 }
                 } else {
-                if(!hayError) e.valor = valor;
+                if(!hayError && asignar) e.valor = valor;
             }
-            if(!hayError) e.operaciones.add(op);
+            if(!hayError && asignar) e.operaciones.add(op);
         }
         if(!hayError)
             tabla.put(nombre, e);
