@@ -14,9 +14,27 @@ import java.util.*;
 public class SymbolTable {
     private static Map<String, SymbolEntry> tabla = new LinkedHashMap<>();
     private static List<String> errores = new ArrayList<>();
+    private static String currentScope = "global";
+
+    public static void setCurrentScope(String scope) {
+        currentScope = scope == null ? "global" : scope;
+    }
+
+    private static String makeKey(String nombre, String alcance) {
+        return nombre + "@" + alcance;
+    }
+
+    private static SymbolEntry findEntry(String nombre) {
+        String key = makeKey(nombre, currentScope);
+        SymbolEntry e = tabla.get(key);
+        if(e == null && !currentScope.equals("global")) {
+            e = tabla.get(makeKey(nombre, "global"));
+        }
+        return e;
+    }
     
      private static Double numericValue(String nombre) {
-        SymbolEntry e = tabla.get(nombre);
+        SymbolEntry e = findEntry(nombre);
         if(e == null) return null;
         try {
             return Double.parseDouble(e.valor);
@@ -74,7 +92,7 @@ public class SymbolTable {
             if(tok.equals("+") || tok.equals("-") || tok.equals("*") || tok.equals("/") ||
                tok.equals("%") || tok.equals("(") || tok.equals(")")) continue;
             if(tok.matches("-?\\d+(\\.\\d+)?")) continue;
-            SymbolEntry ent = tabla.get(tok);
+            SymbolEntry ent = findEntry(tok);
             if(ent != null) {
                 if(!ent.tipoDato.equals("int") && !ent.tipoDato.equals("float")) return true;
             } else {
@@ -101,6 +119,7 @@ public class SymbolTable {
     public static void clear() {
         tabla.clear();
         errores.clear();
+        currentScope = "global";
     }
 
     public static void addError(String e) {
@@ -108,7 +127,8 @@ public class SymbolTable {
     }
 
     public static void declare(String nombre, String tipoDato, String valor, String tipoValor, boolean constante, String alcance) {
-        if(tabla.containsKey(nombre)) {
+        String key = makeKey(nombre, alcance);
+        if(tabla.containsKey(key)) {
             errores.add("Error: doble declaraci\u00f3n de " + nombre);
             return;
         }
@@ -142,11 +162,11 @@ public class SymbolTable {
             if(!hayError && asignar) e.operaciones.add(op);
         }
         if(!hayError)
-            tabla.put(nombre, e);
+            tabla.put(key, e);
     }
 
     public static void assign(String nombre, String tipoDato, String valor) {
-         SymbolEntry e = tabla.get(nombre);
+         SymbolEntry e = findEntry(nombre);
         if(e == null) {
             errores.add("Error: variable no declarada " + nombre);
             return;
@@ -183,7 +203,7 @@ public class SymbolTable {
     }
 
     public static String getType(String nombre) {
-        SymbolEntry e = tabla.get(nombre);
+        SymbolEntry e = findEntry(nombre);
         return e == null ? null : e.tipoDato;
     }
 
