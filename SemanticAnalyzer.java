@@ -114,7 +114,7 @@ public class SemanticAnalyzer {
                 if(opTok.sym != sym.Op_asignacion) continue;
                 Symbol firstExpr = lexer.next_token();
                 Expression expr = readExpression(lexer, firstExpr);
-                SymbolTable.declare(nombre, tipoDato, expr.valor, true, inMain ? "main" : "global");
+                SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, true, inMain ? "main" : "global");
                 if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
                     SymbolTable.addError("Error: tipo incompatible para " + nombre);
                 }
@@ -127,12 +127,12 @@ public class SemanticAnalyzer {
                 if(nextTok.sym == sym.Op_asignacion) {
                     Symbol firstExpr = lexer.next_token();
                     Expression expr = readExpression(lexer, firstExpr);
-                    SymbolTable.declare(nombre, tipoDato, expr.valor, false, inMain ? "main" : "global");
+                    SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global");
                     if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
                         SymbolTable.addError("Error: tipo incompatible para " + nombre);
                     }
                 } else if(nextTok.sym == sym.PuntoComa) {
-                    SymbolTable.declare(nombre, tipoDato, "", false, inMain ? "main" : "global");
+                    SymbolTable.declare(nombre, tipoDato, "", null, false, inMain ? "main" : "global");
                 } else {
                     // token unexpected, skip until semicolon
                 }
