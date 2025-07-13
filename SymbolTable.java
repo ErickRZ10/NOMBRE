@@ -118,7 +118,8 @@ public class SymbolTable {
         boolean hayError = false;
         boolean asignar = true;
         if(valor != null && !valor.isEmpty()) {
-            if(tipoValor != null && !tipoValor.equals("desconocido") && !tipoDato.equals(tipoValor)) {
+            if(tipoValor == null || tipoValor.equals("desconocido") || !tipoDato.equals(tipoValor)) {
+                hayError = true;
                 asignar = false;
             }
             String op = "Asignaci\u00f3n: " + valor;
