@@ -64,9 +64,25 @@ public class SymbolTable {
             }
             return val; }
 
-        double parseFactor() { String tok = tokens[pos];
-            if(tok.equals("(")) { pos++; double val = parseExpression(); if(pos < tokens.length && tokens[pos].equals(")")) pos++; return val; }
-            pos++; return parseNumberOrVar(tok); }
+        double parseFactor() {
+            String tok = tokens[pos];
+            if(tok.equals("(")) {
+                pos++;
+                double val = parseExpression();
+                if(pos < tokens.length && tokens[pos].equals(")")) pos++;
+                return val;
+            }
+            if(tok.equals("-")) {
+                pos++;
+                return -parseFactor();
+            }
+            if(tok.equals("+")) {
+                pos++;
+                return parseFactor();
+            }
+            pos++;
+            return parseNumberOrVar(tok);
+        }
 
         double parseNumberOrVar(String tok) {
             try { return Double.parseDouble(tok); } catch(NumberFormatException ex) {
