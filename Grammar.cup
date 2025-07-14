@@ -139,6 +139,7 @@ EXPRESION ::= EXPRESION Suma            EXPRESION
             | EXPRESION Op_relacional   EXPRESION
             | EXPRESION Op_logico       EXPRESION
             | Parentesis_a EXPRESION Parentesis_c
+            | Resta EXPRESION %prec Resta
             | Input Parentesis_a Cadena Parentesis_c
             | Input Parentesis_a Parentesis_c
             | VALOR 

@@ -12,7 +12,7 @@ package analizador2;
 import java.util.*;
 
 public class SymbolTable {
-    private static Map<String, SymbolEntry> tabla = new LinkedHashMap<>();
+     private static Map<String, SymbolEntry> tabla = new LinkedHashMap<>();
     private static List<String> errores = new ArrayList<>();
     private static String currentScope = "global";
 
@@ -165,7 +165,7 @@ public class SymbolTable {
             tabla.put(key, e);
     }
 
-    public static void assign(String nombre, String tipoDato, String valor) {
+     public static void assign(String nombre, String tipoDato, String valor) {
          SymbolEntry e = findEntry(nombre);
         if(e == null) {
             errores.add("Error: variable no declarada " + nombre);
@@ -202,10 +202,11 @@ public class SymbolTable {
         if(!hayError) e.operaciones.add(op);
     }
 
-    public static String getType(String nombre) {
+   public static String getType(String nombre) {
         SymbolEntry e = findEntry(nombre);
         return e == null ? null : e.tipoDato;
     }
+
 
     public static List<SymbolEntry> getEntries() {
         return new ArrayList<>(tabla.values());

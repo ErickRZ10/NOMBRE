@@ -128,7 +128,7 @@ public class SemanticAnalyzer {
                 Symbol nextTok = lexer.next_token();
                 if(nextTok.sym == sym.Op_asignacion) {
                     Symbol firstExpr = lexer.next_token();
-                    Expression expr = readExpression(lexer, firstExpr);
+                     Expression expr = readExpression(lexer, firstExpr);
                     SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global");
                     if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
                         SymbolTable.addError("Error: tipo incompatible para " + nombre);
