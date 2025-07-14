@@ -10,6 +10,7 @@ import static analizador2.Tokens.*;
 
 import java.awt.Color;
 import java.io.File;
+import java.awt.Font;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -51,15 +52,21 @@ public class FrmPrincipal extends javax.swing.JFrame {
     
     public FrmPrincipal() {
         initComponents();
+        jTextArea1 = new javax.swing.JTextArea("1\n");
+        jTextArea1.setEditable(false);
+        jTextArea1.setBackground(new java.awt.Color(230, 230, 230));
+        jTextArea1.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        jScrollPane1.setRowHeaderView(jTextArea1);
         this.setLocationRelativeTo(null);
         actualizarTitulo();
 
         areaTexto.getDocument().addDocumentListener(new DocumentListener() {
-            private void cambio() { hayCambios = true; actualizarTitulo(); }
+            private void cambio() { hayCambios = true; actualizarTitulo(); actualizarNumerosLinea(); }
             @Override public void insertUpdate(DocumentEvent e) { cambio(); }
             @Override public void removeUpdate(DocumentEvent e) { cambio(); }
             @Override public void changedUpdate(DocumentEvent e) { cambio(); }
         });
+        actualizarNumerosLinea();
 
         jLabel5.setText("Listo");
         // Confirmación al intentar cerrar la ventana
@@ -436,6 +443,8 @@ case ARROW:
         txtAnalizarSin = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         txtAnalizarLex = new javax.swing.JTextArea();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         B_Nuevo = new javax.swing.JMenuItem();
@@ -530,6 +539,10 @@ case ARROW:
         txtAnalizarLex.setRows(5);
         jScrollPane2.setViewportView(txtAnalizarLex);
 
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane4.setViewportView(jTextArea1);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -542,12 +555,14 @@ case ARROW:
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 943, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(59, 59, 59))
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jSplitPane2, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 791, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jSplitPane2, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 791, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -560,7 +575,9 @@ case ARROW:
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
                     .addComponent(jScrollPane3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -676,6 +693,15 @@ case ARROW:
         Highlighter h = areaTexto.getHighlighter();
         h.removeAllHighlights();
     }
+ 
+   private void actualizarNumerosLinea() {
+        int lineCount = areaTexto.getLineCount();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= lineCount; i++) {
+            sb.append(i).append(System.lineSeparator());
+        }
+        jTextArea1.setText(sb.toString());
+    }
 
     private void resaltarLineaError(int linea){
         limpiarResaltado();
@@ -732,6 +758,7 @@ case ARROW:
             try {
                 String contenido = new String(Files.readAllBytes(archivoActual.toPath()));
                 areaTexto.setText(contenido);
+                actualizarNumerosLinea();
                 hayCambios = false;
                 limpiarAnalisis();
                 actualizarTitulo();
@@ -798,6 +825,7 @@ case ARROW:
         
         limpiarAnalisis();
         areaTexto.setText("");
+        actualizarNumerosLinea();
         archivoActual = null;
         hayCambios = false;
         actualizarTitulo();
@@ -932,8 +960,10 @@ case ARROW:
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSplitPane jSplitPane2;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JTextArea txtAnalizarLex;
     private javax.swing.JTextArea txtAnalizarSin;
