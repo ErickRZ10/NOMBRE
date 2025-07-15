@@ -31,7 +31,9 @@ public class SemanticAnalyzer {
         if(tok.sym == sym.Identificador) {
             String t = SymbolTable.getType(tok.value.toString());
             if(t == null) {
-                SymbolTable.addError("Error: variable no declarada " + tok.value.toString(), tok.left + 1);
+                // tok.right contains the line number and starts at 0
+                // so we add 1 to report the line correctly
+                SymbolTable.addError("Error: variable no declarada " + tok.value.toString(), tok.right + 1);
                 return "desconocido";
             }
             return t;
@@ -116,9 +118,10 @@ public class SemanticAnalyzer {
                 if(opTok.sym != sym.Op_asignacion) continue;
                 Symbol firstExpr = lexer.next_token();
                 Expression expr = readExpression(lexer, firstExpr);
-                SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, true, inMain ? "main" : "global", tok.left + 1);
+                // tok.right contains the line number of the current token
+                SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, true, inMain ? "main" : "global", tok.right + 1);
                 if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
-                    SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.left + 1);
+                    SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
                 }
             } else if(isType(tok.sym)) {
                 String tipoDato = ((String)tok.value).toLowerCase();
@@ -129,12 +132,12 @@ public class SemanticAnalyzer {
                 if(nextTok.sym == sym.Op_asignacion) {
                     Symbol firstExpr = lexer.next_token();
                      Expression expr = readExpression(lexer, firstExpr);
-                    SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global", tok.left + 1);
+                    SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global", tok.right + 1);
                     if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
-                        SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.left + 1);
+                        SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
                     }
                 } else if(nextTok.sym == sym.PuntoComa) {
-                    SymbolTable.declare(nombre, tipoDato, "", null, false, inMain ? "main" : "global", tok.left + 1);
+                    SymbolTable.declare(nombre, tipoDato, "", null, false, inMain ? "main" : "global", tok.right + 1);
                 } else {
                     // token unexpected, skip until semicolon
                 }
@@ -144,7 +147,7 @@ public class SemanticAnalyzer {
                 if(opTok.sym != sym.Op_asignacion) continue;
                 Symbol firstExpr = lexer.next_token();
                 Expression expr = readExpression(lexer, firstExpr);
-                SymbolTable.assign(nombre, expr.tipo, expr.valor, tok.left + 1);
+                SymbolTable.assign(nombre, expr.tipo, expr.valor, tok.right + 1);
             }
         }
         return SymbolTable.report();
