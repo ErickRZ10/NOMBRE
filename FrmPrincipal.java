@@ -841,7 +841,11 @@ case ARROW:
             s.parse();
             String reporte = SemanticAnalyzer.analyze(ST);
             txtAnalizarSin.setText("An\u00e1lisis Sintáctico Realizado Correctamente\n" + reporte);
-            txtAnalizarSin.setForeground(new Color(65, 84, 100));
+            if(reporte.contains("Errores Sem\u00e1nticos")) {
+                txtAnalizarSin.setForeground(Color.RED);
+            } else {
+                txtAnalizarSin.setForeground(Color.GREEN);
+            }
             limpiarResaltado();
         } catch (Exception ex) {
             Symbol sym = s.getS();

@@ -138,14 +138,18 @@ public class SymbolTable {
         currentScope = "global";
     }
 
+    public static void addError(String e, int linea) {
+        errores.add("L\u00ednea " + linea + ": " + e);
+    }
+
     public static void addError(String e) {
         errores.add(e);
     }
 
-    public static void declare(String nombre, String tipoDato, String valor, String tipoValor, boolean constante, String alcance) {
+    public static void declare(String nombre, String tipoDato, String valor, String tipoValor, boolean constante, String alcance, int linea) {
         String key = makeKey(nombre, alcance);
         if(tabla.containsKey(key)) {
-            errores.add("Error: doble declaraci\u00f3n de " + nombre);
+            addError("Error: doble declaraci\u00f3n de " + nombre, linea);
             return;
         }
         String tipo = constante ? "constante" : "variable";
@@ -162,7 +166,7 @@ public class SymbolTable {
             boolean simpleConst = isSimpleConstant(valor);
             if(tipoDato.equals("int") || tipoDato.equals("float")) {
                 if(numericExprHasInvalidTokens(valor)) {
-                    errores.add("Error: tipo incompatible en operaci\u00f3n para " + nombre);
+                    addError("Error: tipo incompatible en operaci\u00f3n para " + nombre, linea);
                     hayError = true;
                 }
                 if(!hayError && asignar) {
@@ -181,26 +185,26 @@ public class SymbolTable {
             tabla.put(key, e);
     }
 
-     public static void assign(String nombre, String tipoDato, String valor) {
+    public static void assign(String nombre, String tipoDato, String valor, int linea) {
          SymbolEntry e = findEntry(nombre);
         if(e == null) {
-            errores.add("Error: variable no declarada " + nombre);
+            addError("Error: variable no declarada " + nombre, linea);
             return;
         }
         if(e.esConstante) {
-            errores.add("Error: no se puede modificar la constante " + nombre);
+            addError("Error: no se puede modificar la constante " + nombre, linea);
             return;
         }
         boolean hayError = false;
         if(tipoDato != null && !tipoDato.equals("desconocido") && !e.tipoDato.equals(tipoDato)) {
-            errores.add("Error: tipo incompatible para " + nombre + ". Se esperaba " + e.tipoDato + " y se obtuvo " + tipoDato);
+            addError("Error: tipo incompatible para " + nombre + ". Se esperaba " + e.tipoDato + " y se obtuvo " + tipoDato, linea);
             hayError = true;
         }
         String op = "Asignaci\u00f3n: " + valor;
         boolean simpleConst = isSimpleConstant(valor);
         if(e.tipoDato.equals("int") || e.tipoDato.equals("float")) {
             if(numericExprHasInvalidTokens(valor)) {
-                errores.add("Error: tipo incompatible en operaci\u00f3n para " + nombre);
+                addError("Error: tipo incompatible en operaci\u00f3n para " + nombre, linea);
                 hayError = true;
             }
             if(!hayError) {
