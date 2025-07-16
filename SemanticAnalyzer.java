@@ -19,13 +19,15 @@ public class SemanticAnalyzer {
 
     private static boolean isType(int s) {
         return s == analizador2.sym.Int || s == analizador2.sym.Float ||
+               s == analizador2.sym.Double || s == analizador2.sym.CharType ||
                s == analizador2.sym.Bool || s == analizador2.sym.String;
     }
 
     private static String tokenToType(Symbol tok) {
         if(tok.sym == sym.NumeroEntero) return "int";
         if(tok.sym == sym.NumeroDecimal) return "float";
-        if(tok.sym == sym.Cadena || tok.sym == sym.Char) return "string";
+        if(tok.sym == sym.Char) return "char";
+        if(tok.sym == sym.Cadena) return "string";
         if(tok.sym == sym.True || tok.sym == sym.False) return "bool";
         if(tok.sym == sym.None) return "none";
         if(tok.sym == sym.Identificador) {

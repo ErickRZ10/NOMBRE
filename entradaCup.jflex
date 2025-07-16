@@ -27,6 +27,8 @@ WHITESPACE = [ \t\r\n]+
 
 ("int")     { return new Symbol(sym.Int, yychar, yyline, yytext()); }
 ("float")   { return new Symbol(sym.Float, yychar, yyline, yytext()); }
+("double")  { return new Symbol(sym.Double, yychar, yyline, yytext()); }
+("char")    { return new Symbol(sym.CharType, yychar, yyline, yytext()); }
 ("bool")    { return new Symbol(sym.Bool, yychar, yyline, yytext()); }
 ("string")  { return new Symbol(sym.String, yychar, yyline, yytext()); }
 

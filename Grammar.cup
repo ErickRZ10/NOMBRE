@@ -10,10 +10,11 @@ parser code
 :};
 
 /* ─────────────  TERMINALES  ───────────── */
-terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corchete_a, Flecha, Corchete_c, 
+terminal If, Elif, Else, While, Input, For, In, Def, From, Import, Punto, Corchete_a, Flecha, Corchete_c,
          Return, Print, Parentesis_a, Parentesis_c, Llave_a, Llave_c, Coma, PuntoComa, DosPuntos, True, False, None,
          Suma, Resta, Multiplicacion, Division, Modulo, Potencia, Op_logico, Op_relacional, Op_asignacion,
-         NumeroEntero, NumeroDecimal, Int, Float, Const, Bool, String, Main, Cadena, Char, Identificador,Break, Error;
+         NumeroEntero, NumeroDecimal, Int, Float, Double, CharType, Const, Bool, String, Main, Cadena, Char,
+         Identificador,Break, Error;
 
 /* ─────────────  NO TERMINALES  ───────────── */
 non terminal PROGRAMA, OPC_DECL, OPC_FUNCIONES, DECLARACIONES, FUNCION_PRINCIPAL, FUNCIONES, FUNCION, PARAMS, SENTENCIAS, SENTENCIA, ASIGNACION,
@@ -88,12 +89,16 @@ SENTENCIA ::= ASIGNACION       PuntoComa
 
 DECLARACION_TIPADA ::= Int Identificador OPC_INIT
                      | Float Identificador OPC_INIT
+                     | Double Identificador OPC_INIT
                      | Bool Identificador OPC_INIT
                      | String Identificador OPC_INIT
+                     | CharType Identificador OPC_INIT
                      | Const Int Identificador Op_asignacion EXPRESION
                      | Const Float Identificador Op_asignacion EXPRESION
+                     | Const Double Identificador Op_asignacion EXPRESION
                      | Const Bool Identificador Op_asignacion EXPRESION
-                     | Const String Identificador Op_asignacion EXPRESION ;
+                     | Const String Identificador Op_asignacion EXPRESION
+                     | Const CharType Identificador Op_asignacion EXPRESION ;
 
 
 OPC_INIT ::= Op_asignacion EXPRESION
