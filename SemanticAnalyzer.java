@@ -61,15 +61,43 @@ public class SemanticAnalyzer {
         if(tokens.size() == 1) {
             tipo = tokenToType(tokens.get(0));
         } else {
-            // simple heuristic: if all tokens numeric return numeric, else desconocido
+            // inspect each token to determine if the whole expression is numeric
+            boolean numeric = true;
             boolean anyFloat = false;
-            boolean allNumeric = true;
             for(Symbol s : tokens) {
-                if(s.sym == sym.NumeroDecimal) anyFloat = true;
-                else if(s.sym == sym.NumeroEntero) { /* ok */ }
-                else { allNumeric = false; break; }
+                switch(s.sym) {
+                    case sym.NumeroDecimal:
+                        anyFloat = true;
+                        break;
+                    case sym.NumeroEntero:
+                        break;
+                    case sym.Identificador: {
+                        String tType = SymbolTable.getType(s.value.toString());
+                        if(tType == null) {
+                            SymbolTable.addError("Error: variable no declarada " + s.value.toString(), s.right + 1);
+                            numeric = false;
+                        } else if(tType.equals("float") || tType.equals("double")) {
+                            anyFloat = true;
+                        } else if(!tType.equals("int")) {
+                            numeric = false;
+                        }
+                        break;
+                    }
+                    case sym.Suma:
+                    case sym.Resta:
+                    case sym.Multiplicacion:
+                    case sym.Division:
+                    case sym.Modulo:
+                    case sym.Potencia:
+                    case sym.Parentesis_a:
+                    case sym.Parentesis_c:
+                        break; // operators and parentheses are fine
+                    default:
+                        numeric = false;
+                }
+                if(!numeric) break;
             }
-            if(allNumeric) {
+            if(numeric) {
                 tipo = anyFloat ? "float" : "int";
             } else {
                 tipo = "desconocido";
