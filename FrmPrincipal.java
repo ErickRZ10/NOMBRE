@@ -55,7 +55,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea("1\n");
         jTextArea1.setEditable(false);
         jTextArea1.setBackground(new java.awt.Color(230, 230, 230));
-        jTextArea1.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        jTextArea1.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         jScrollPane1.setRowHeaderView(jTextArea1);
         this.setLocationRelativeTo(null);
         actualizarTitulo();
@@ -68,7 +68,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
         actualizarNumerosLinea();
 
-        jLabel5.setText("Listo");
+        jLabel5.setText("Liiiiisssssstoo");
         // Confirmación al intentar cerrar la ventana
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -842,9 +842,9 @@ case ARROW:
             String reporte = SemanticAnalyzer.analyze(ST);
             txtAnalizarSin.setText("An\u00e1lisis Sintáctico Realizado Correctamente\n" + reporte);
             if(reporte.contains("Errores Sem\u00e1nticos")) {
-                txtAnalizarSin.setForeground(Color.RED);
+                txtAnalizarSin.setForeground(new Color(180,1,31)); 
             } else {
-                txtAnalizarSin.setForeground(Color.GREEN);
+                txtAnalizarSin.setForeground(new Color(20, 71, 117)); //144775 rgb(20, 71, 117)
             }
             limpiarResaltado();
         } catch (Exception ex) {

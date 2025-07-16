@@ -138,7 +138,7 @@ public class SymbolTable {
         currentScope = "global";
     }
 
-    public static void addError(String e, int linea) {
+   public static void addError(String e, int linea) {
         errores.add("L\u00ednea " + linea + ": " + e);
     }
 
@@ -185,7 +185,7 @@ public class SymbolTable {
             tabla.put(key, e);
     }
 
-    public static void assign(String nombre, String tipoDato, String valor, int linea) {
+     public static void assign(String nombre, String tipoDato, String valor, int linea) {
          SymbolEntry e = findEntry(nombre);
         if(e == null) {
             addError("Error: variable no declarada " + nombre, linea);
@@ -202,7 +202,7 @@ public class SymbolTable {
         }
         String op = "Asignaci\u00f3n: " + valor;
         boolean simpleConst = isSimpleConstant(valor);
-        if(e.tipoDato.equals("int") || e.tipoDato.equals("float")) {
+         if(e.tipoDato.equals("int") || e.tipoDato.equals("float")) {
             if(numericExprHasInvalidTokens(valor)) {
                 addError("Error: tipo incompatible en operaci\u00f3n para " + nombre, linea);
                 hayError = true;
@@ -239,6 +239,7 @@ public class SymbolTable {
     public static String report() {
         StringBuilder sb = new StringBuilder();
         sb.append("\nTabla de S\u00edmbolos:\n");
+        sb.append("-------------------------------------------------------------------------------------------------------------------------------------------------------\n");
         sb.append("ID\tTipo\tNombre\tTipoDato\tValor\tAlcance\tSecuencia de Operaciones\n");
         sb.append("-------------------------------------------------------------------------------------------------------------------------------------------------------\n");
         int id = 1;

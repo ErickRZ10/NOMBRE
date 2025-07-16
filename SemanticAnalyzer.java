@@ -132,14 +132,13 @@ public class SemanticAnalyzer {
                 if(nextTok.sym == sym.Op_asignacion) {
                     Symbol firstExpr = lexer.next_token();
                      Expression expr = readExpression(lexer, firstExpr);
-                    SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global", tok.right + 1);
+                     SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global", tok.right + 1);
                     if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
-                        SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
+                         SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
                     }
                 } else if(nextTok.sym == sym.PuntoComa) {
-                    SymbolTable.declare(nombre, tipoDato, "", null, false, inMain ? "main" : "global", tok.right + 1);
-                } else {
-                    // token unexpected, skip until semicolon
+                     SymbolTable.declare(nombre, tipoDato, "", null, false, inMain ? "main" : "global", tok.right + 1);
+                } else { // token unexpected, skip until semicolon
                 }
             } else if(tok.sym == sym.Identificador) {
                 String nombre = tok.value.toString();
