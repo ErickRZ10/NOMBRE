@@ -110,7 +110,7 @@ public class SymbolTable {
             if(tok.matches("-?\\d+(\\.\\d+)?")) continue;
             SymbolEntry ent = findEntry(tok);
             if(ent != null) {
-                if(!ent.tipoDato.equals("int") && !ent.tipoDato.equals("float") && !ent.tipoDato.equals("double")) return true;
+                if(!ent.tipoDato.equals("int") && !ent.tipoDato.equals("float")) return true;
             } else {
                 if(tok.matches("\".*\"") || tok.matches("'.*'") ||
                    tok.equalsIgnoreCase("true") || tok.equalsIgnoreCase("false") ||
@@ -146,16 +146,6 @@ public class SymbolTable {
         errores.add(e);
     }
 
-    private static boolean compatible(String varType, String exprType) {
-        if(exprType == null || exprType.equals("desconocido")) return false;
-        if(varType.equals(exprType)) return true;
-        if(varType.equals("float") && exprType.equals("int")) return true;
-        if(varType.equals("double")) {
-            if(exprType.equals("int") || exprType.equals("float") || exprType.equals("double")) return true;
-        }
-        return false;
-    }
-
     public static void declare(String nombre, String tipoDato, String valor, String tipoValor, boolean constante, String alcance, int linea) {
         String key = makeKey(nombre, alcance);
         if(tabla.containsKey(key)) {
@@ -168,13 +158,13 @@ public class SymbolTable {
         boolean hayError = false;
         boolean asignar = true;
         if(valor != null && !valor.isEmpty()) {
-            if(!compatible(tipoDato, tipoValor)) {
+            if(tipoValor == null || tipoValor.equals("desconocido") || !tipoDato.equals(tipoValor)) {
                 hayError = true;
                 asignar = false;
             }
             String op = "Asignaci\u00f3n: " + valor;
             boolean simpleConst = isSimpleConstant(valor);
-            if(tipoDato.equals("int") || tipoDato.equals("float") || tipoDato.equals("double")) {
+            if(tipoDato.equals("int") || tipoDato.equals("float")) {
                 if(numericExprHasInvalidTokens(valor)) {
                     addError("Error: tipo incompatible en operaci\u00f3n para " + nombre, linea);
                     hayError = true;
@@ -206,13 +196,13 @@ public class SymbolTable {
             return;
         }
         boolean hayError = false;
-        if(!compatible(e.tipoDato, tipoDato)) {
+        if(tipoDato != null && !tipoDato.equals("desconocido") && !e.tipoDato.equals(tipoDato)) {
             addError("Error: tipo incompatible para " + nombre + ". Se esperaba " + e.tipoDato + " y se obtuvo " + tipoDato, linea);
             hayError = true;
         }
         String op = "Asignaci\u00f3n: " + valor;
         boolean simpleConst = isSimpleConstant(valor);
-         if(e.tipoDato.equals("int") || e.tipoDato.equals("float") || e.tipoDato.equals("double")) {
+         if(e.tipoDato.equals("int") || e.tipoDato.equals("float")) {
             if(numericExprHasInvalidTokens(valor)) {
                 addError("Error: tipo incompatible en operaci\u00f3n para " + nombre, linea);
                 hayError = true;
