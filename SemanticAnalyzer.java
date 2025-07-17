@@ -23,6 +23,22 @@ public class SemanticAnalyzer {
                s == analizador2.sym.Bool || s == analizador2.sym.String;
     }
 
+    // Simple one token buffer to allow pushing back tokens
+    private static Symbol bufferedToken = null;
+
+    private static Symbol nextToken(LexerCup lexer) throws IOException {
+        if (bufferedToken != null) {
+            Symbol t = bufferedToken;
+            bufferedToken = null;
+            return t;
+        }
+        return lexer.next_token();
+    }
+
+    private static void unreadToken(Symbol tok) {
+        bufferedToken = tok;
+    }
+
     private static String tokenToType(Symbol tok) {
         if(tok.sym == sym.NumeroEntero) return "int";
         if(tok.sym == sym.NumeroDecimal) return "float";
@@ -49,11 +65,12 @@ public class SemanticAnalyzer {
         if(stops.isEmpty()) stops.add(sym.PuntoComa);
         List<Symbol> tokens = new ArrayList<>();
         tokens.add(first);
-        Symbol t = lexer.next_token();
+        Symbol t = nextToken(lexer);
         while(!stops.contains(t.sym) && t.sym != sym.EOF) {
             tokens.add(t);
-            t = lexer.next_token();
+            t = nextToken(lexer);
         }
+        unreadToken(t);
         // build string representation
         StringBuilder sb = new StringBuilder();
         for(Symbol s : tokens) {
@@ -122,7 +139,7 @@ public class SemanticAnalyzer {
         boolean inMain = false;
         int braceDepth = 0;
         while(true) {
-            tok = lexer.next_token();
+            tok = nextToken(lexer);
             if(tok.sym == sym.EOF) break;
 
             SymbolTable.setCurrentScope(inMain ? "main" : "global");
@@ -141,15 +158,15 @@ public class SemanticAnalyzer {
                 }
             }
             if(tok.sym == sym.Const) {
-                Symbol typeTok = lexer.next_token();
+                Symbol typeTok = nextToken(lexer);
                 if(!isType(typeTok.sym)) continue; // invalid
                 String tipoDato = ((String)typeTok.value).toLowerCase();
-                Symbol idTok = lexer.next_token();
+                Symbol idTok = nextToken(lexer);
                 if(idTok.sym != sym.Identificador) continue;
                 String nombre = idTok.value.toString();
-                Symbol opTok = lexer.next_token();
+                Symbol opTok = nextToken(lexer);
                 if(opTok.sym != sym.Op_asignacion) continue;
-                Symbol firstExpr = lexer.next_token();
+                Symbol firstExpr = nextToken(lexer);
                 Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
                 // tok.right contains the line number of the current token
                 SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, true, inMain ? "main" : "global", tok.right + 1);
@@ -158,32 +175,32 @@ public class SemanticAnalyzer {
                 }
             } else if(isType(tok.sym)) {
                 String tipoDato = ((String)tok.value).toLowerCase();
-                Symbol idTok = lexer.next_token();
+                Symbol idTok = nextToken(lexer);
                 if(idTok.sym != sym.Identificador) continue;
                 String nombre = idTok.value.toString();
-                Symbol nextTok = lexer.next_token();
+                Symbol nextTok = nextToken(lexer);
                 if(nextTok.sym == sym.Corchete_a) {
-                    Symbol sizeTok = lexer.next_token();
+                    Symbol sizeTok = nextToken(lexer);
                     int tam = 0;
                     if(sizeTok.sym == sym.NumeroEntero) {
                         tam = Integer.parseInt(sizeTok.value.toString());
                     }
-                    lexer.next_token(); // Corchete_c
-                    Symbol after = lexer.next_token();
+                    nextToken(lexer); // Corchete_c
+                    Symbol after = nextToken(lexer);
                     String arrayVal = "";
                     if(after.sym == sym.Op_asignacion) {
-                        lexer.next_token(); // Corchete_a
+                        nextToken(lexer); // Corchete_a
                         List<String> vals = new ArrayList<>();
                         List<String> tipos = new ArrayList<>();
-                        Symbol vtok = lexer.next_token();
+                        Symbol vtok = nextToken(lexer);
                         if(vtok.sym != sym.Corchete_c) {
                             while(true) {
                                 Expression ev = readExpression(lexer, vtok, sym.Coma, sym.Corchete_c);
                                 vals.add(ev.valor);
                                 tipos.add(ev.tipo);
-                                Symbol sep = lexer.next_token();
+                                Symbol sep = nextToken(lexer);
                                 if(sep.sym == sym.Coma) {
-                                    vtok = lexer.next_token();
+                                    vtok = nextToken(lexer);
                                     continue;
                                 }
                                 break;
@@ -196,15 +213,14 @@ public class SemanticAnalyzer {
                                 break;
                             }
                         }
-                        lexer.next_token(); // Corchete_c
-                        lexer.next_token(); // PuntoComa
+                        nextToken(lexer); // PuntoComa
                         if(vals.size() > tam) SymbolTable.addError("Error: demasiados valores para arreglo " + nombre, tok.right + 1);
                         SymbolTable.declareArray(nombre, tipoDato, tam, arrayVal, inMain ? "main" : "global", tok.right + 1);
                     } else if(after.sym == sym.PuntoComa) {
                         SymbolTable.declareArray(nombre, tipoDato, tam, "", inMain ? "main" : "global", tok.right + 1);
                     }
                 } else if(nextTok.sym == sym.Op_asignacion) {
-                    Symbol firstExpr = lexer.next_token();
+                    Symbol firstExpr = nextToken(lexer);
                     Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
                     SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global", tok.right + 1);
                     if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
@@ -217,21 +233,21 @@ public class SemanticAnalyzer {
                 }
             } else if(tok.sym == sym.Identificador) {
                 String nombre = tok.value.toString();
-                Symbol nextTok = lexer.next_token();
+                Symbol nextTok = nextToken(lexer);
                 if(nextTok.sym == sym.Corchete_a) {
-                    Symbol idxFirst = lexer.next_token();
+                    Symbol idxFirst = nextToken(lexer);
                     Expression idxExpr = readExpression(lexer, idxFirst, sym.Corchete_c);
-                    lexer.next_token(); // Corchete_c
-                    Symbol opTok = lexer.next_token();
+                    nextToken(lexer); // Corchete_c
+                    Symbol opTok = nextToken(lexer);
                     if(opTok.sym != sym.Op_asignacion) continue;
-                    Symbol firstExpr = lexer.next_token();
+                    Symbol firstExpr = nextToken(lexer);
                     Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
                     if(!idxExpr.tipo.equals("int")) {
                         SymbolTable.addError("Error: \u00edndice no num\u00e9rico para " + nombre, tok.right + 1);
                     }
                     SymbolTable.assignArrayElement(nombre, expr.tipo, expr.valor, tok.right + 1);
                 } else if(nextTok.sym == sym.Op_asignacion) {
-                    Symbol firstExpr = lexer.next_token();
+                    Symbol firstExpr = nextToken(lexer);
                     Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
                     SymbolTable.assign(nombre, expr.tipo, expr.valor, tok.right + 1);
                 }
