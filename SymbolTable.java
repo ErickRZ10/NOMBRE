@@ -12,7 +12,7 @@ package analizador2;
 import java.util.*;
 
 public class SymbolTable {
-     private static Map<String, SymbolEntry> tabla = new LinkedHashMap<>();
+    private static Map<String, SymbolEntry> tabla = new LinkedHashMap<>();
     private static List<String> errores = new ArrayList<>();
     private static String currentScope = "global";
 
@@ -185,8 +185,24 @@ public class SymbolTable {
             tabla.put(key, e);
     }
 
-     public static void assign(String nombre, String tipoDato, String valor, int linea) {
-         SymbolEntry e = findEntry(nombre);
+    public static void declareArray(String nombre, String tipoDato, int tamano, String valor,
+                                    String alcance, int linea) {
+        String key = makeKey(nombre, alcance);
+        if(tabla.containsKey(key)) {
+            addError("Error: doble declaraci\u00f3n de " + nombre, linea);
+            return;
+        }
+        SymbolEntry e = new SymbolEntry("variable", nombre, tipoDato + "[]", "", alcance, false, true, tamano);
+        e.operaciones.add("Declaraci\u00f3n de arreglo");
+        if(valor != null && !valor.isEmpty()) {
+            e.valor = valor;
+            e.operaciones.add("Asignaci\u00f3n: " + valor);
+        }
+        tabla.put(key, e);
+    }
+
+    public static void assign(String nombre, String tipoDato, String valor, int linea) {
+        SymbolEntry e = findEntry(nombre);
         if(e == null) {
             addError("Error: variable no declarada " + nombre, linea);
             return;
@@ -222,6 +238,24 @@ public class SymbolTable {
         if(!hayError) e.operaciones.add(op);
     }
 
+    public static void assignArrayElement(String nombre, String tipoDato, String valor, int linea) {
+        SymbolEntry e = findEntry(nombre);
+        if(e == null) {
+            addError("Error: variable no declarada " + nombre, linea);
+            return;
+        }
+        if(!e.esArreglo) {
+            addError("Error: " + nombre + " no es un arreglo", linea);
+            return;
+        }
+        String elemTipo = e.tipoDato.replace("[]", "");
+        if(tipoDato != null && !tipoDato.equals("desconocido") && !elemTipo.equals(tipoDato)) {
+            addError("Error: tipo incompatible para " + nombre, linea);
+            return;
+        }
+        e.operaciones.add("Asignaci\u00f3n elemento: " + valor);
+    }
+
    public static String getType(String nombre) {
         SymbolEntry e = findEntry(nombre);
         return e == null ? null : e.tipoDato;
@@ -240,13 +274,15 @@ public class SymbolTable {
         StringBuilder sb = new StringBuilder();
         sb.append("\nTabla de S\u00edmbolos:\n");
         sb.append("-------------------------------------------------------------------------------------------------------------------------------------------------------\n");
-        sb.append("ID\tTipo\tNombre\tTipoDato\tValor\tAlcance\tSecuencia de Operaciones\n");
+        sb.append("ID\tTipo\tNombre\tTipoDato\tTama\u00f1o\tValor\tAlcance\tSecuencia de Operaciones\n");
         sb.append("-------------------------------------------------------------------------------------------------------------------------------------------------------\n");
         int id = 1;
         for(SymbolEntry e : tabla.values()) {
             sb.append(id++).append('\t');
             sb.append(e.tipo).append('\t').append(e.nombre).append('\t').append(e.tipoDato)
-              .append('\t').append(e.valor).append('\t').append(e.alcance).append('\t');
+              .append('\t');
+            sb.append(e.esArreglo ? e.tamano : "").append('\t');
+            sb.append(e.valor).append('\t').append(e.alcance).append('\t');
             sb.append(String.join(", ", e.operaciones)).append('\n');
             
         }
