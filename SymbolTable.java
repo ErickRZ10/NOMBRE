@@ -282,7 +282,19 @@ public class SymbolTable {
             sb.append(e.tipo).append('\t').append(e.nombre).append('\t').append(e.tipoDato)
               .append('\t');
             sb.append(e.esArreglo ? e.tamano : "").append('\t');
-            sb.append(e.valor).append('\t').append(e.alcance).append('\t');
+            String val = e.valor;
+            if(e.esArreglo) {
+                if(val == null || val.isEmpty()) {
+                    val = "{}";
+                } else {
+                    val = val.trim();
+                    if(val.startsWith("[") && val.endsWith("]")) {
+                        val = val.substring(1, val.length() - 1);
+                    }
+                    val = "{" + val.replaceAll("\\s+", "") + "}";
+                }
+            }
+            sb.append(val).append('\t').append(e.alcance).append('\t');
             sb.append(String.join(", ", e.operaciones)).append('\n');
             
         }
