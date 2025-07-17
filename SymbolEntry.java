@@ -17,6 +17,8 @@ public class SymbolEntry {
     public String valor;
     public String alcance;
     public boolean esConstante;
+    public boolean esArreglo;
+    public int tamano;
     public java.util.List<String> operaciones;
 
     public SymbolEntry(String tipo, String nombre, String tipoDato, String valor, String alcance, boolean esConstante) {
@@ -26,6 +28,15 @@ public class SymbolEntry {
         this.valor = valor;
         this.alcance = alcance;
         this.esConstante = esConstante;
+        this.esArreglo = false;
+        this.tamano = 0;
         this.operaciones = new java.util.ArrayList<>();
+    }
+
+    public SymbolEntry(String tipo, String nombre, String tipoDato, String valor, String alcance,
+                        boolean esConstante, boolean esArreglo, int tamano) {
+        this(tipo, nombre, tipoDato, valor, alcance, esConstante);
+        this.esArreglo = esArreglo;
+        this.tamano = tamano;
     }
 }

@@ -43,11 +43,14 @@ public class SemanticAnalyzer {
         return "desconocido";
     }
 
-    private static Expression readExpression(LexerCup lexer, Symbol first) throws IOException {
+    private static Expression readExpression(LexerCup lexer, Symbol first, int... stopSyms) throws IOException {
+        java.util.Set<Integer> stops = new java.util.HashSet<>();
+        if(stopSyms != null) for(int s : stopSyms) stops.add(s);
+        if(stops.isEmpty()) stops.add(sym.PuntoComa);
         List<Symbol> tokens = new ArrayList<>();
         tokens.add(first);
         Symbol t = lexer.next_token();
-        while(t.sym != sym.PuntoComa && t.sym != sym.EOF) {
+        while(!stops.contains(t.sym) && t.sym != sym.EOF) {
             tokens.add(t);
             t = lexer.next_token();
         }
@@ -147,7 +150,7 @@ public class SemanticAnalyzer {
                 Symbol opTok = lexer.next_token();
                 if(opTok.sym != sym.Op_asignacion) continue;
                 Symbol firstExpr = lexer.next_token();
-                Expression expr = readExpression(lexer, firstExpr);
+                Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
                 // tok.right contains the line number of the current token
                 SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, true, inMain ? "main" : "global", tok.right + 1);
                 if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
@@ -159,24 +162,79 @@ public class SemanticAnalyzer {
                 if(idTok.sym != sym.Identificador) continue;
                 String nombre = idTok.value.toString();
                 Symbol nextTok = lexer.next_token();
-                if(nextTok.sym == sym.Op_asignacion) {
+                if(nextTok.sym == sym.Corchete_a) {
+                    Symbol sizeTok = lexer.next_token();
+                    int tam = 0;
+                    if(sizeTok.sym == sym.NumeroEntero) {
+                        tam = Integer.parseInt(sizeTok.value.toString());
+                    }
+                    lexer.next_token(); // Corchete_c
+                    Symbol after = lexer.next_token();
+                    String arrayVal = "";
+                    if(after.sym == sym.Op_asignacion) {
+                        lexer.next_token(); // Corchete_a
+                        List<String> vals = new ArrayList<>();
+                        List<String> tipos = new ArrayList<>();
+                        Symbol vtok = lexer.next_token();
+                        if(vtok.sym != sym.Corchete_c) {
+                            while(true) {
+                                Expression ev = readExpression(lexer, vtok, sym.Coma, sym.Corchete_c);
+                                vals.add(ev.valor);
+                                tipos.add(ev.tipo);
+                                Symbol sep = lexer.next_token();
+                                if(sep.sym == sym.Coma) {
+                                    vtok = lexer.next_token();
+                                    continue;
+                                }
+                                break;
+                            }
+                        }
+                        arrayVal = "[" + String.join(", ", vals) + "]";
+                        for(String tval : tipos) {
+                            if(!tval.equals("desconocido") && !tval.equals(tipoDato)) {
+                                SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
+                                break;
+                            }
+                        }
+                        lexer.next_token(); // Corchete_c
+                        lexer.next_token(); // PuntoComa
+                        if(vals.size() > tam) SymbolTable.addError("Error: demasiados valores para arreglo " + nombre, tok.right + 1);
+                        SymbolTable.declareArray(nombre, tipoDato, tam, arrayVal, inMain ? "main" : "global", tok.right + 1);
+                    } else if(after.sym == sym.PuntoComa) {
+                        SymbolTable.declareArray(nombre, tipoDato, tam, "", inMain ? "main" : "global", tok.right + 1);
+                    }
+                } else if(nextTok.sym == sym.Op_asignacion) {
                     Symbol firstExpr = lexer.next_token();
-                     Expression expr = readExpression(lexer, firstExpr);
-                     SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global", tok.right + 1);
+                    Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
+                    SymbolTable.declare(nombre, tipoDato, expr.valor, expr.tipo, false, inMain ? "main" : "global", tok.right + 1);
                     if(!expr.tipo.equals("desconocido") && !expr.tipo.equals(tipoDato)) {
-                         SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
+                        SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
                     }
                 } else if(nextTok.sym == sym.PuntoComa) {
-                     SymbolTable.declare(nombre, tipoDato, "", null, false, inMain ? "main" : "global", tok.right + 1);
-                } else { // token unexpected, skip until semicolon
+                    SymbolTable.declare(nombre, tipoDato, "", null, false, inMain ? "main" : "global", tok.right + 1);
+                } else {
+                    // unexpected
                 }
             } else if(tok.sym == sym.Identificador) {
                 String nombre = tok.value.toString();
-                Symbol opTok = lexer.next_token();
-                if(opTok.sym != sym.Op_asignacion) continue;
-                Symbol firstExpr = lexer.next_token();
-                Expression expr = readExpression(lexer, firstExpr);
-                SymbolTable.assign(nombre, expr.tipo, expr.valor, tok.right + 1);
+                Symbol nextTok = lexer.next_token();
+                if(nextTok.sym == sym.Corchete_a) {
+                    Symbol idxFirst = lexer.next_token();
+                    Expression idxExpr = readExpression(lexer, idxFirst, sym.Corchete_c);
+                    lexer.next_token(); // Corchete_c
+                    Symbol opTok = lexer.next_token();
+                    if(opTok.sym != sym.Op_asignacion) continue;
+                    Symbol firstExpr = lexer.next_token();
+                    Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
+                    if(!idxExpr.tipo.equals("int")) {
+                        SymbolTable.addError("Error: \u00edndice no num\u00e9rico para " + nombre, tok.right + 1);
+                    }
+                    SymbolTable.assignArrayElement(nombre, expr.tipo, expr.valor, tok.right + 1);
+                } else if(nextTok.sym == sym.Op_asignacion) {
+                    Symbol firstExpr = lexer.next_token();
+                    Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
+                    SymbolTable.assign(nombre, expr.tipo, expr.valor, tok.right + 1);
+                }
             }
         }
         return SymbolTable.report();
