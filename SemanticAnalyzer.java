@@ -82,7 +82,7 @@ public class SemanticAnalyzer {
             tipo = tokenToType(tokens.get(0));
         } else {
             // inspect each token to determine if the whole expression is numeric
-            boolean numeric = true;
+             boolean numeric = true;
             boolean anyFloat = false;
             boolean hasDivision = false;
             for(Symbol s : tokens) {
@@ -104,7 +104,7 @@ public class SemanticAnalyzer {
                         }
                         break;
                     }
-                    case sym.Suma:
+                   case sym.Suma:
                     case sym.Resta:
                     case sym.Multiplicacion:
                     case sym.Division:

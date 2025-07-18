@@ -238,7 +238,7 @@ public class SymbolTable {
         if(!hayError) e.operaciones.add(op);
     }
 
-    public static void assignArrayElement(String nombre, String indice, String tipoDato, String valor, int linea) {
+     public static void assignArrayElement(String nombre, String indice, String tipoDato, String valor, int linea) {
         SymbolEntry e = findEntry(nombre);
         if(e == null) {
             addError("Error: variable no declarada " + nombre, linea);

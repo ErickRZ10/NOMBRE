@@ -451,6 +451,7 @@ case ARROW:
         B_Abrir = new javax.swing.JMenuItem();
         btnGuardar = new javax.swing.JMenuItem();
         btnGuardar_Como = new javax.swing.JMenuItem();
+        Exportar = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
@@ -620,6 +621,9 @@ case ARROW:
             }
         });
         jMenu1.add(btnGuardar_Como);
+
+        Exportar.setText("Exportar");
+        jMenu1.add(Exportar);
 
         jMenuBar1.add(jMenu1);
 
@@ -938,6 +942,7 @@ case ARROW:
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem B_Abrir;
     private javax.swing.JMenuItem B_Nuevo;
+    private javax.swing.JMenuItem Exportar;
     private javax.swing.JTree RECIENTES;
     private javax.swing.JButton T_Abrir;
     private javax.swing.JTextArea areaTexto;
