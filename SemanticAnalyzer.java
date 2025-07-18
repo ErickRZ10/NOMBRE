@@ -207,15 +207,22 @@ public class SemanticAnalyzer {
                             }
                         }
                         arrayVal = "[" + String.join(", ", vals) + "]";
+                        boolean arrError = false;
                         for(String tval : tipos) {
                             if(!tval.equals("desconocido") && !tval.equals(tipoDato)) {
                                 SymbolTable.addError("Error: tipo incompatible para " + nombre, tok.right + 1);
+                                arrError = true;
                                 break;
                             }
                         }
                         nextToken(lexer); // PuntoComa
-                        if(vals.size() > tam) SymbolTable.addError("Error: demasiados valores para arreglo " + nombre, tok.right + 1);
-                        SymbolTable.declareArray(nombre, tipoDato, tam, arrayVal, inMain ? "main" : "global", tok.right + 1);
+                        if(vals.size() > tam) {
+                            SymbolTable.addError("Error: demasiados valores para arreglo " + nombre, tok.right + 1);
+                            arrError = true;
+                        }
+                        if(!arrError) {
+                            SymbolTable.declareArray(nombre, tipoDato, tam, arrayVal, inMain ? "main" : "global", tok.right + 1);
+                        }
                     } else if(after.sym == sym.PuntoComa) {
                         SymbolTable.declareArray(nombre, tipoDato, tam, "", inMain ? "main" : "global", tok.right + 1);
                     }
