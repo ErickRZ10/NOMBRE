@@ -238,7 +238,7 @@ public class SymbolTable {
         if(!hayError) e.operaciones.add(op);
     }
 
-    public static void assignArrayElement(String nombre, String tipoDato, String valor, int linea) {
+    public static void assignArrayElement(String nombre, String indice, String tipoDato, String valor, int linea) {
         SymbolEntry e = findEntry(nombre);
         if(e == null) {
             addError("Error: variable no declarada " + nombre, linea);
@@ -253,7 +253,50 @@ public class SymbolTable {
             addError("Error: tipo incompatible para " + nombre, linea);
             return;
         }
-        e.operaciones.add("Asignaci\u00f3n elemento: " + valor);
+        Double idxVal = evalNumericExpr(indice);
+        if(idxVal == null || idxVal % 1 != 0) {
+            addError("Error: \u00edndice no num\u00e9rico para " + nombre, linea);
+            return;
+        }
+        int idx = idxVal.intValue();
+        if(idx < 0 || idx >= e.tamano) {
+            addError("Error: \u00edndice fuera de rango para " + nombre, linea);
+            return;
+        }
+
+        java.util.List<String> elems = new java.util.ArrayList<>();
+        if(e.valor != null && !e.valor.isEmpty()) {
+            String valStr = e.valor.trim();
+            if(valStr.startsWith("[") && valStr.endsWith("]")) {
+                valStr = valStr.substring(1, valStr.length() - 1);
+            }
+            if(!valStr.isEmpty()) {
+                for(String part : valStr.split(",")) {
+                    elems.add(part.trim());
+                }
+            }
+        }
+        while(elems.size() < e.tamano) elems.add("");
+
+        boolean hayError = false;
+        String op = "Asignaci\u00f3n elemento [" + idx + "]: " + valor;
+        if(elemTipo.equals("int") || elemTipo.equals("float")) {
+            if(numericExprHasInvalidTokens(valor)) {
+                addError("Error: tipo incompatible en operaci\u00f3n para " + nombre, linea);
+                hayError = true;
+            }
+            if(!hayError) {
+                Double res = evalNumericExpr(valor);
+                if(res != null) {
+                    valor = res % 1 == 0 ? Integer.toString(res.intValue()) : res.toString();
+                }
+            }
+        }
+        if(!hayError) {
+            elems.set(idx, valor);
+            e.valor = "[" + String.join(", ", elems) + "]";
+            e.operaciones.add(op);
+        }
     }
 
    public static String getType(String nombre) {

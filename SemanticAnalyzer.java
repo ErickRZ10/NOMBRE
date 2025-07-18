@@ -245,7 +245,7 @@ public class SemanticAnalyzer {
                     if(!idxExpr.tipo.equals("int")) {
                         SymbolTable.addError("Error: \u00edndice no num\u00e9rico para " + nombre, tok.right + 1);
                     }
-                    SymbolTable.assignArrayElement(nombre, expr.tipo, expr.valor, tok.right + 1);
+                    SymbolTable.assignArrayElement(nombre, idxExpr.valor, expr.tipo, expr.valor, tok.right + 1);
                 } else if(nextTok.sym == sym.Op_asignacion) {
                     Symbol firstExpr = nextToken(lexer);
                     Expression expr = readExpression(lexer, firstExpr, sym.PuntoComa);
