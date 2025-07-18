@@ -84,6 +84,7 @@ public class SemanticAnalyzer {
             // inspect each token to determine if the whole expression is numeric
             boolean numeric = true;
             boolean anyFloat = false;
+            boolean hasDivision = false;
             for(Symbol s : tokens) {
                 switch(s.sym) {
                     case sym.NumeroDecimal:
@@ -107,6 +108,7 @@ public class SemanticAnalyzer {
                     case sym.Resta:
                     case sym.Multiplicacion:
                     case sym.Division:
+                        if(s.sym == sym.Division) hasDivision = true;
                     case sym.Modulo:
                     case sym.Potencia:
                     case sym.Parentesis_a:
@@ -118,7 +120,7 @@ public class SemanticAnalyzer {
                 if(!numeric) break;
             }
             if(numeric) {
-                tipo = anyFloat ? "float" : "int";
+                tipo = (anyFloat || hasDivision) ? "float" : "int";
             } else {
                 tipo = "desconocido";
             }
