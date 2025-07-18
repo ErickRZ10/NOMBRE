@@ -623,6 +623,11 @@ case ARROW:
         jMenu1.add(btnGuardar_Como);
 
         Exportar.setText("Exportar");
+        Exportar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ExportarActionPerformed(evt);
+            }
+        });
         jMenu1.add(Exportar);
 
         jMenuBar1.add(jMenu1);
@@ -808,6 +813,30 @@ case ARROW:
         }
     }
 
+    private void exportarAnalisis() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Exportar análisis");
+        int seleccion = fileChooser.showSaveDialog(this);
+        if (seleccion == JFileChooser.APPROVE_OPTION) {
+            File archivo = fileChooser.getSelectedFile();
+            if (!archivo.getName().toLowerCase().endsWith(".txt")) {
+                archivo = new File(archivo.getAbsolutePath() + ".txt");
+            }
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo))) {
+                bw.write("Código de entrada:\n");
+                bw.write(areaTexto.getText());
+                bw.write("\n\nAnálisis Léxico:\n");
+                bw.write(txtAnalizarLex.getText());
+                bw.write("\n\nAnálisis Sintáctico y Semántico:\n");
+                bw.write(txtAnalizarSin.getText());
+                JOptionPane.showMessageDialog(this, "Archivo exportado correctamente.");
+                jLabel5.setText("Archivo exportado: " + archivo.getName());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error al exportar: " + ex.getMessage());
+            }
+        }
+    }
+
     private void nuevoArchivo() {
         if (!confirmarGuardarCambios()) {
             return;
@@ -901,6 +930,10 @@ case ARROW:
     private void B_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B_NuevoActionPerformed
           nuevoArchivo();
     }//GEN-LAST:event_B_NuevoActionPerformed
+
+    private void ExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportarActionPerformed
+        exportarAnalisis();
+    }//GEN-LAST:event_ExportarActionPerformed
 
     /**
      * @param args the command line arguments
